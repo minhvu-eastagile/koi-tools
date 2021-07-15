@@ -547,13 +547,17 @@ export class Common {
       }
     }`;
     const request = JSON.stringify({ query });
-    return this.gql(request);
+    let gqlResp=await this.gql(request)
+    if(gqlResp && gqlResp.data.transactions.edges){
+      return gqlResp.data.transactions.edges
+    }
+    return {message:"No KIDs Found"};
   }
 
   /**
-     * Gets the list of all KIDs(DIDs)
+     * Get the KID state for the particular walletAddress
      * @param walletAddress The wallet address for the person whose DID is to be found
-     * @returns {Array} - returns a Javascript Array of object with each object representing a single KID
+     * @returns {Object} - returns a Javascript object having KID state or Failure message incase no DID found
      */
   async getKIDByWalletAddress(walletAddress?: string): Promise<any> {
 
@@ -572,7 +576,12 @@ export class Common {
         }
       }`;
     const request = JSON.stringify({ query });
-    return this.gql(request);
+    let gqlResp=await this.gql(request)
+    if(gqlResp && gqlResp.data.transactions.edges && gqlResp.data.transactions.edges[0]){
+      let KIDState=await smartweave.readContract(arweave, gqlResp.data.transactions.edges[0].node.id);
+      return KIDState
+    }
+    return {message:"No KID Found for this address"};
   }
   /**
    * Creates a KID smartcontract on arweave
@@ -583,7 +592,6 @@ export class Common {
   async createKID(KIDObject: any, image: any,): Promise<any> {
     const initialState = KIDObject
     if (initialState && initialState.addresses && initialState.addresses.Arweave) {
-
 
       try {
         const tx = await arweave.createTransaction(
@@ -658,6 +666,7 @@ export class Common {
       tx.addTag('App-Name', 'SmartWeaveContract');
       tx.addTag('App-Version', '0.1.0');
       tx.addTag('Contract-Src', 'NCepV_8bY831CMHK0LZQAQAVwZyNKLalmC36FlagLQE');
+      tx.addTag('Wallet-Address', collectionObject.owner);
       tx.addTag('Init-State', JSON.stringify(initialState));
       await arweave.transactions.sign(tx, this.wallet);
       const uploader = await arweave.transactions.getUploader(tx);
@@ -674,12 +683,52 @@ export class Common {
     }
   }
   /**
+     * Gets the list of all Collections by walletAddress
+     * @param walletAddress The wallet address for the person whose DID is to be found
+     * @param count The number of results to return
+     * @param cursorId Cursor ID after which to query results, from data.transactions.edges[n].cursor
+     * @returns {Array} - returns a Javascript Array of object with each object representing a Collection object (The collection object contains id which can be used in func readState to get actual state)
+     */
+   async getCollectionsByWalletAddress(walletAddress?: string,count?: number, cursorId?: string): Promise<any> {
+    const countStr = count !== undefined ? `, first: ${count}` : "";
+    const afterStr = cursorId !== undefined ? `, after: "${cursorId}"` : "";
+    const query = `
+      query {
+        transactions(tags: [{
+          name: "Action",
+          values: ["Collection/Create"]
+      },
+        {
+          name: "Wallet-Address",
+          values: ["${walletAddress}"]
+      }
+      ]${countStr}${afterStr}) {
+          ${BLOCK_TEMPLATE}
+        }
+      }`;
+    const request = JSON.stringify({ query }); 
+    let gqlResp=await this.gql(request)
+    if(gqlResp && gqlResp.data.transactions.edges){
+      return gqlResp.data.transactions.edges
+    }
+    return {message:"No Collections found for this address"};
+  }
+  /**
+   * Get the state from arweave for any contract
+   * @param txId Transaction ID of the NFT
+   * @returns The NFT state object
+   */
+   async readState(txId: string): Promise<any> {
+    return smartweave.readContract(arweave, txId);
+  }
+
+  /**
    * Add new NFTs to the existing collection
    * @param nftId - The transaction id of the NFT to be added to the collection
    * @param contractId - the contract Id for Collection to be updated
    * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
    */
-   async addToCollection(nftId: any, contractId: string): Promise<any> {
+   async addToCollection(nftId: string, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
     const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
@@ -695,7 +744,7 @@ export class Common {
    * @param contractId - the contract Id for Collection to be updated
    * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
    */
-   async removeFromCollection(index: any, contractId: string): Promise<any> {
+   async removeFromCollection(index: number, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
     const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
@@ -710,7 +759,7 @@ export class Common {
    * @param contractId - the contract Id for Collection to be updated
    * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
    */
-   async updateView(newView: any, contractId: string): Promise<any> {
+   async updateView(newView: string, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
     const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
@@ -725,7 +774,7 @@ export class Common {
    * @param contractId - the contract Id for Collection to be updated
    * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
    */
-   async updatePreviewImageIndex(imageIndex: any, contractId: string): Promise<any> {
+   async updatePreviewImageIndex(imageIndex: number, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
     const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
