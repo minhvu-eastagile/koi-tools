@@ -557,7 +557,7 @@ export class Common {
   /**
      * Get the KID state for the particular walletAddress
      * @param walletAddress The wallet address for the person whose DID is to be found
-     * @returns {Object} - returns a Javascript object having KID state or Failure message incase no DID found
+     * @returns {Object} - returns a contract object having id which can be used to get the state 
      */
   async getKIDByWalletAddress(walletAddress?: string): Promise<any> {
 
@@ -577,9 +577,8 @@ export class Common {
       }`;
     const request = JSON.stringify({ query });
     let gqlResp=await this.gql(request)
-    if(gqlResp && gqlResp.data.transactions.edges && gqlResp.data.transactions.edges[0]){
-      let KIDState=await smartweave.readContract(arweave, gqlResp.data.transactions.edges[0].node.id);
-      return KIDState
+    if(gqlResp && gqlResp.data.transactions.edges){
+      return gqlResp.data.transactions.edges
     }
     return {message:"No KID Found for this address"};
   }
