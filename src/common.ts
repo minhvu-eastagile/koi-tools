@@ -798,6 +798,48 @@ export class Common {
     });
     return txId
   }
+  /**
+   *  Calculates total Views and earned KOII for given NFTIds Array
+   * @param nftIdArr - The array of NFTIds for which total Views and earned KOII will be calculated
+   * @returns {object} - returns an object containing totalViews and totalRewards
+   */
+   async getViewsAndEarnedKOII(nftIdArr:any): Promise<any> {
+    let state=await this.getContractState()
+    if(state){
+    const rewardReport = state.stateUpdate?state.stateUpdate.trafficLogs.rewardReport:[];
+    let totalViewsOverall=0
+    let totalRewardOverall=0
+    for(let i=0;i<nftIdArr.length;i++){
+      let contentTxId=nftIdArr[i]
+      let contentViews = {
+        totalViews: 0,
+        totalReward: 0,
+        twentyFourHrViews: 0
+      };
+      rewardReport.forEach((ele:any) => {
+        let logSummary = ele.logsSummary;
+
+        for (let txId in logSummary) {
+          if (txId == contentTxId) {
+            if (rewardReport.indexOf(ele) == rewardReport.length - 1) {
+              contentViews.twentyFourHrViews = logSummary[contentTxId];
+            }
+
+            const rewardPerAttention = ele.rewardPerAttention;
+            contentViews.totalViews += logSummary[contentTxId];
+            const rewardPerLog = logSummary[contentTxId] * rewardPerAttention;
+            contentViews.totalReward += rewardPerLog;
+          }
+        }
+      });
+      totalViewsOverall+=contentViews.totalViews
+      totalRewardOverall+=contentViews.totalReward
+    }
+    return {totalViews:totalViewsOverall,totalReward:totalRewardOverall};
+    }else{
+      return {message:"Views and earned KOII cannot be extracted (State not valid)"}
+    }
+  }
   // Protected functions
 
   /**
