@@ -470,6 +470,14 @@ export class Node extends Common {
     });
   }
 
+  /**
+   * Gets the contract state from kyve
+   * @returns Promise containing the state
+   */
+  kyveGetContractState(): Promise<any> {
+    return super._readContract();
+  }
+
   // Protected functions
 
   /**
