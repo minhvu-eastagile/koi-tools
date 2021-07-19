@@ -192,11 +192,12 @@ export class Common {
    */
   async readNftState(txId: string): Promise<any> {
     try { 
-      const data = await fetch(
+      const response = await axios.get(
         `https://bundler.openkoi.com:8888/state/getNFTState?tranxId=${txId}`
-      ).then((res) => res.json());
-      return data;
+      );
+      return response.data;
     } catch (err) {
+      console.log("ERRPR",err)
       if (err) console.error('error fetching NFT data from bundler for ' + txId);
       return smartweave.readContract(arweave, txId);
     }
