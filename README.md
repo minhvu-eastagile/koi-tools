@@ -15,7 +15,7 @@ The Koi.js library enables node.js and javascript/typescript applications to eas
 2. Add the Koi-tools module to your script and then initialize the koi class.
 
    ```
-   import * as kweb from "@_koi/sdk/web";
+   import * as kweb from "@_koi/sdk/web.js";
    const ktools = new kweb.Web();
    ```
    or with CommonJS
