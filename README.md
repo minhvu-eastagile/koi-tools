@@ -15,7 +15,7 @@ The Koi.js library enables node.js and javascript/typescript applications to eas
 2. Add the Koi-tools module to your script and then initialize the koi class.
 
    ```
-   import * as kweb from "@_koi/sdk/web";
+   import * as kweb from "@_koi/sdk/web.js";
    const ktools = new kweb.Web();
    ```
    or with CommonJS
@@ -82,66 +82,23 @@ Note: This library changes often, so if `npm i koi-tools` does not work, check f
 
 The Koi consensus process releases 1,000 KOI tokens per day to reward the best content that has ever been registered, proportional to the attention it receives in that time period.
 
-Register arweave content like so:
-
-```
-var koiTools = require('koiTools');
-var koi = new koiTools('/path/to/wallet.json')
-var burnAmount = 5; // the amount of koi to burn on registration (burn more to earn more!)
-var result = await koi.registerContent(< arweaveTxId >, burnAmount ? optional)
-console.log('registered:', result)
-```
-
 Fetch all registered records:
 
 ```
 var records = koiTools.retrieveAllRegisteredContent();
 ```
-This will print a full list of all registered NFTs by txID, which can then be fetched using the bundler endpoints of any koii node:
+This will print a full list of all registered NFTs by txID, which can then be fetched using the bundler endpoints of any Koii node:
 ```
-var nftdata = await fetch(`https://bundler.openkoi.com:8888/state/getNFTState?tranxId=${id}`)
+var nftdata = await fetch(`https://bundler.openkoi.com:8888/state/nft?tranxId=${id}`)
 ```
 
-Once this has been completed, your wallet will receive a portion of the daily KOI tokens every time your content is viewed.
+Your wallet will receive a portion of the daily KOI tokens every time your content is viewed.
 
 If you do not have a KOI balance, you cannot participate. Your KOI will be burned to register the content.
 
 ## Coming Soon: KOI Tasks
 
 In order to ensure everyone has open access to the network, we're working on making it possible for nodes to run 'tasks' for each other to earn tokens.
-
-### Earning KOI
-
-The default task is will be called StoreCat, which gathers web data and stores it on the permaweb archive. To run StoreCat, you can use a similar implementation to the one above.
-
-```
-var koiTools = require('koiTools');
-var koi = new koiTools('/path/to/wallet.json')
-var result = await koi.runTaskByRegisteredName('getstorecat')
-console.log('task:', result)
-```
-
-Note: Some tasks take a while to execute, so the best way to run them is with the desktop node client.
-
-### Requesting Tasks
-
-It will soon be possible to tap into the Koi network to request work. Once you have KOI tokens, you can set a bounty for a new task.
-
-```
-var koiTools = require('koiTools');
-var koi = new koiTools('/path/to/wallet.json')
-var koiTask = {
-   id : "getstorecat", // unique global ID *see runTaskByRegisteredName above
-   bounty : "5",       // bounty per result in KOI
-   description : "
-      Help StoreCat gather web data by running this simple web scraping task. The StoreCat does not have access to your computer, but will use your internet connection to browse the web.
-   ", // long form description text
-   expiry : new Date () + 5,       // expiry date after which unspent bounty tokens will be returned
-   taskFile : " arweave TX ID of task file" // the execution environment currently supports most NPM bundles
-}
-var result = await koi.registerTask(koiTask)
-console.log('registered:', result)
-```
 
 ## Build
 
@@ -157,7 +114,6 @@ For beta releases
  - append `-beta.N` to `dist/package.json` version where N is the beta version
  - use `yarn publish dist --tag beta`
 
-
 ### Webpack
 
 ```
@@ -165,17 +121,3 @@ yarn install
 yarn bundle
 ```
 Test with `yarn test`
-
-### Useful vscode settings
-
-`settings.json`
-```
-    "eslint.validate": [
-        "typescript",
-        "typescriptreact",
-    ],
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-    }
-```
-
