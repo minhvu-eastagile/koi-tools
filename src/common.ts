@@ -132,8 +132,7 @@ export class Common {
    * @returns Wallet address
    */
   async getWalletAddress(): Promise<string> {
-    if (typeof this.address !== "string")
-      this.address = await arweave.wallets.jwkToAddress(this.wallet);
+    this.address = await arweave.wallets.jwkToAddress(this.wallet);
     return this.address;
   }
 
