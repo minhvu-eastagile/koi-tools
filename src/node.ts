@@ -10,6 +10,7 @@ import * as arweaveUtils from "arweave/node/lib/utils";
 import { smartweave } from "smartweave";
 import redis, { RedisClient } from "redis";
 import { Query } from "@kyve/query";
+import { readContract } from "@kyve/query"
 
 interface VoteState {
   id: number;
@@ -474,8 +475,13 @@ export class Node extends Common {
    * Gets the contract state from kyve
    * @returns Promise containing the state
    */
-  kyveGetContractState(): Promise<any> {
-    return super._readContract();
+  async kyveGetContractState(): Promise<any> {
+    let stateFromKYVE = await this.readContractFromKYVE()
+    if (stateFromKYVE) {
+      return stateFromKYVE
+    }
+    // Fallback to smartweave
+    return smartweave.readContract(arweave, this.contractId);
   }
 
   // Protected functions
@@ -529,49 +535,75 @@ export class Node extends Common {
    * @returns Contract
    */
   protected async _readContract(): Promise<any> {
-    if (this.redisClient) {
-      // First Attempt to retrieve the ContractPredictedState from redis
-      const stateStr = await this.redisGetAsync("ContractPredictedState");
-      if (stateStr !== null) {
-        const state = JSON.parse(stateStr);
-        if (state) {
-          const balances = state["balances"];
-          if (balances !== undefined && balances !== null) return state;
+    if (process.env.NODE_MODE !== "service") {
+      try {
+        let state = await axios.get("https://devbundler.openkoi.com:8888/state/current")
+        if (state) return state
+      } catch (e) {
+        console.error("Cannot retrieve from bundler:", e)
+      }
+    }
+    else {
+      if (this.redisClient) {
+        // First Attempt to retrieve the ContractPredictedState from redis
+        const stateStr = await this.redisGetAsync("ContractPredictedState");
+        if (stateStr !== null) {
+          const state = JSON.parse(stateStr);
+          if (state) {
+            const balances = state["balances"];
+            if (balances !== undefined && balances !== null) {
+              this.readContractFromKYVE()
+              return state;
+            }
+          }
+        }
+      }
+
+      // Next Attempt to retrieve ContractCurrentState from redis (Stored when data was successfully retrieved from KYVE)
+      if (this.redisClient) {
+        const stateStr = await this.redisGetAsync("ContractCurrentState");
+        if (stateStr !== null) {
+          const state = JSON.parse(stateStr);
+          if (state) {
+            const balances = state["balances"];
+            if (balances !== undefined && balances !== null) {
+              this.readContractFromKYVE()
+              return state;
+            }
+          }
         }
       }
     }
-
-    // Second, get state from Kyve
-    const poolID = "OFD4GqQcqp-Y_Iqh8DN_0s3a_68oMvvnekeOEu_a45I";
-    const query = new Query(poolID);
-    // finding latest transactions
-    try {
-      const snapshotArray = await query.limit(1).find();
-      if (snapshotArray && snapshotArray.length > 0)
-        return JSON.parse(snapshotArray[0]).state;
-      else console.error("NOTHING RETURNED FROM KYVE");
-    } catch (e) {
-      console.error("ERROR RETRIEVING FROM KYVE", e);
+    // If no state found on the cache retrieve the state in sync from KYVE
+    let stateFromKYVE = await this.readContractFromKYVE()
+    if (stateFromKYVE) {
+      return stateFromKYVE
     }
-
-    // Next Attempt to retrieve ContractCurrentState from redis (Stored when data was successfully retrieved from KYVE)
-    if (this.redisClient) {
-      const stateStr = await this.redisGetAsync("ContractCurrentState");
-      if (stateStr !== null) {
-        const state = JSON.parse(stateStr);
-        if (state) {
-          const balances = state["balances"];
-          if (balances !== undefined && balances !== null) return state;
-        }
-      }
-    }
-
     // Fallback to smartweave
     return smartweave.readContract(arweave, this.contractId);
   }
 
   // Private functions
-
+  /**
+   * Read the data from KYVE
+   * @returns STate
+   */
+  protected async readContractFromKYVE(): Promise<any> {
+    // Second, get state from Kyve
+    const poolID = "OFD4GqQcqp-Y_Iqh8DN_0s3a_68oMvvnekeOEu_a45I";
+    try {
+      let computedStateFromSnapshot = await readContract(poolID, this.contractId, false)
+      if (computedStateFromSnapshot) {
+        if (this.redisClient) {
+          await this.redisSetAsync("ContractCurrentState", JSON.stringify(computedStateFromSnapshot))
+        }
+        return computedStateFromSnapshot
+      }
+      else console.error("NOTHING RETURNED FROM KYVE");
+    } catch (e) {
+      console.error("ERROR RETRIEVING FROM KYVE", e);
+    }
+  }
   /**
    * Read the data and update
    * @returns Database document ID
