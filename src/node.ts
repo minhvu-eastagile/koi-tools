@@ -537,8 +537,8 @@ export class Node extends Common {
   protected async _readContract(): Promise<any> {
     if (process.env.NODE_MODE !== "service") {
       try {
-        let state = await axios.get("https://devbundler.openkoi.com:8888/state/current")
-        if (state) return state
+        let response = await axios.get("https://devbundler.openkoi.com:8888/state/current")
+        if (response.data) return response.data
       } catch (e) {
         console.error("Cannot retrieve from bundler:", e)
       }
