@@ -471,19 +471,6 @@ export class Node extends Common {
     });
   }
 
-  /**
-   * Gets the contract state from kyve
-   * @returns Promise containing the state
-   */
-  async kyveGetContractState(): Promise<any> {
-    const stateFromKYVE = await this.readContractFromKYVE();
-    if (stateFromKYVE) {
-      return stateFromKYVE;
-    }
-    // Fallback to smartweave
-    return smartweave.readContract(arweave, this.contractId);
-  }
-
   // Protected functions
 
   /**

@@ -4,7 +4,6 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
 import { smartweave } from "smartweave";
-import { Query } from "@kyve/query";
 import { readContract } from "@kyve/query";
 
 //@ts-ignore // Needed to allow implicit any here
@@ -163,15 +162,8 @@ export class Common {
    * Gets the current contract state
    * @returns Current KOI system state
    */
-  async getContractState(): Promise<any> {
-    const consoleWarn = console.warn;
-    // Required to make kyve less verbose
-    console.warn = (_) => {
-      return;
-    };
-    const data = await this._readContract();
-    console.warn = consoleWarn;
-    return data;
+  getContractState(): Promise<any> {
+    return this._readContract();
   }
 
   /**
@@ -919,11 +911,17 @@ export class Common {
   protected async readContractFromKYVE(): Promise<any> {
     const poolID = "OFD4GqQcqp-Y_Iqh8DN_0s3a_68oMvvnekeOEu_a45I";
     try {
+      const consoleWarn = console.warn;
+      // Required to make kyve less verbose
+      console.warn = (_) => {
+        return;
+      };
       const computedStateFromSnapshot = await readContract(
         poolID,
         this.contractId,
         false
       );
+      console.warn = consoleWarn;
       if (computedStateFromSnapshot) {
         return computedStateFromSnapshot;
       } else console.error("NOTHING RETURNED FROM KYVE");
