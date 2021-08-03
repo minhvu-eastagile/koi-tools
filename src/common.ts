@@ -5,7 +5,7 @@ import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
 import { smartweave } from "smartweave";
 import { Query } from "@kyve/query";
-import { readContract } from "@kyve/query"
+import { readContract } from "@kyve/query";
 
 //@ts-ignore // Needed to allow implicit any here
 import { generateKeyPair, getKeyPairFromMnemonic } from "human-crypto-keys";
@@ -163,8 +163,15 @@ export class Common {
    * Gets the current contract state
    * @returns Current KOI system state
    */
-  getContractState(): Promise<any> {
-    return this._readContract();
+  async getContractState(): Promise<any> {
+    const consoleWarn = console.warn;
+    // Required to make kyve less verbose
+    console.warn = (_) => {
+      return;
+    };
+    const data = await this._readContract();
+    console.warn = consoleWarn;
+    return data;
   }
 
   /**
@@ -888,15 +895,17 @@ export class Common {
    */
   protected async _readContract(): Promise<any> {
     try {
-      let response = await axios.get("https://devbundler.openkoi.com:8888/state/current")
-      if (response.data) return response.data
+      const response = await axios.get(
+        "https://devbundler.openkoi.com:8888/state/current"
+      );
+      if (response.data) return response.data;
     } catch (e) {
-      console.error("Cannot retrieve from bundler:", e)
+      console.error("Cannot retrieve from bundler:", e);
     }
     // If no state found on the cache retrieve the state in sync from KYVE
-    let stateFromKYVE = await this.readContractFromKYVE()
+    const stateFromKYVE = await this.readContractFromKYVE();
     if (stateFromKYVE) {
-      return stateFromKYVE
+      return stateFromKYVE;
     }
     // Fallback to smartweave
     return smartweave.readContract(arweave, this.contractId);
@@ -904,17 +913,20 @@ export class Common {
 
   // Private functions
   /**
-    * Read the data from KYVE
-    * @returns STate
-    */
+   * Read the data from KYVE
+   * @returns STate
+   */
   protected async readContractFromKYVE(): Promise<any> {
     const poolID = "OFD4GqQcqp-Y_Iqh8DN_0s3a_68oMvvnekeOEu_a45I";
     try {
-      let computedStateFromSnapshot = await readContract(poolID, this.contractId, false)
+      const computedStateFromSnapshot = await readContract(
+        poolID,
+        this.contractId,
+        false
+      );
       if (computedStateFromSnapshot) {
-        return computedStateFromSnapshot
-      }
-      else console.error("NOTHING RETURNED FROM KYVE");
+        return computedStateFromSnapshot;
+      } else console.error("NOTHING RETURNED FROM KYVE");
     } catch (e) {
       console.error("ERROR RETRIEVING FROM KYVE", e);
     }
