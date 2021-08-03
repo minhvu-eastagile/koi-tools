@@ -580,11 +580,17 @@ export class Node extends Common {
     // Second, get state from Kyve
     const poolID = "OFD4GqQcqp-Y_Iqh8DN_0s3a_68oMvvnekeOEu_a45I";
     try {
+      const consoleWarn = console.warn;
+      // Required to make kyve less verbose
+      console.warn = (_) => {
+        return;
+      };
       const computedStateFromSnapshot = await readContract(
         poolID,
         this.contractId,
         false
       );
+      console.warn = consoleWarn;
       if (computedStateFromSnapshot) {
         if (this.redisClient) {
           await this.redisSetAsync(
