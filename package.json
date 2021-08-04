@@ -1,6 +1,6 @@
 {
   "name": "@_koi/sdk",
-  "version": "2.1.42",
+  "version": "2.1.43",
   "description": "",
   "main": "./node/node.js",
   "browser": "./web/web.js",
@@ -32,7 +32,8 @@
     "node-polyfill-webpack-plugin": "^1.1.1",
     "pem-jwk": "^2.0.0",
     "redis": "^3.1.2",
-    "smartweave": "^0.4.29"
+    "smartweave": "^0.4.29",
+    "web3": "^1.5.0"
   },
   "devDependencies": {
     "@types/redis": "^2.8.28",

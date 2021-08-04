@@ -73,8 +73,8 @@
 </code></pre>
 					</li>
 					<li><p>Add the Koi-tools module to your script and then initialize the koi class.</p>
-						<pre><code><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Web</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@_koi/sdk/web&quot;</span><span style="color: #000000">;</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ktools</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Web</span><span style="color: #000000">();</span>
+						<pre><code><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">kweb</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@_koi/sdk/web.js&quot;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ktools</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">kweb</span><span style="color: #000000">.</span><span style="color: #795E26">Web</span><span style="color: #000000">();</span>
 </code></pre>
 						<p>or with CommonJS</p>
 						<pre><code><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">kweb</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;@_koi/sdk/web&quot;</span><span style="color: #000000">);</span>
@@ -132,53 +132,18 @@
 					<h2>Content Rewards</h2>
 				</a>
 				<p>The Koi consensus process releases 1,000 KOI tokens per day to reward the best content that has ever been registered, proportional to the attention it receives in that time period.</p>
-				<p>Register arweave content like so:</p>
-				<pre><code><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">koiTools</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;koiTools&#039;</span><span style="color: #000000">);</span>
-<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">koi</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">koiTools</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/path/to/wallet.json&#039;</span><span style="color: #000000">)</span>
-<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">burnAmount</span><span style="color: #000000"> = </span><span style="color: #098658">5</span><span style="color: #000000">; </span><span style="color: #008000">// the amount of koi to burn on registration (burn more to earn more!)</span>
-<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">result</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">koi</span><span style="color: #000000">.</span><span style="color: #795E26">registerContent</span><span style="color: #000000">(&lt; </span><span style="color: #267F99">arweaveTxId</span><span style="color: #000000"> &gt;, </span><span style="color: #001080">burnAmount</span><span style="color: #000000"> ? </span><span style="color: #001080">optional</span><span style="color: #000000">)</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;registered:&#039;</span><span style="color: #000000">, </span><span style="color: #001080">result</span><span style="color: #000000">)</span>
-</code></pre>
 				<p>Fetch all registered records:</p>
 				<pre><code><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">records</span><span style="color: #000000"> = </span><span style="color: #001080">koiTools</span><span style="color: #000000">.</span><span style="color: #795E26">retrieveAllRegisteredContent</span><span style="color: #000000">();</span>
 </code></pre>
-				<p>This will print a full list of all registered NFTs by txID, which can then be fetched using the bundler endpoints of any koii node:</p>
-				<pre><code><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">nftdata</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">fetch</span><span style="color: #000000">(</span><span style="color: #A31515">`https://bundler.openkoi.com:8888/state/getNFTState?tranxId=</span><span style="color: #0000FF">${</span><span style="color: #001080">id</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">)</span>
+				<p>This will print a full list of all registered NFTs by txID, which can then be fetched using the bundler endpoints of any Koii node:</p>
+				<pre><code><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">nftdata</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">fetch</span><span style="color: #000000">(</span><span style="color: #A31515">`https://bundler.openkoi.com:8888/state/nft?tranxId=</span><span style="color: #0000FF">${</span><span style="color: #001080">id</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">)</span>
 </code></pre>
-				<p>Once this has been completed, your wallet will receive a portion of the daily KOI tokens every time your content is viewed.</p>
+				<p>Your wallet will receive a portion of the daily KOI tokens every time your content is viewed.</p>
 				<p>If you do not have a KOI balance, you cannot participate. Your KOI will be burned to register the content.</p>
 				<a href="#coming-soon-koi-tasks" id="coming-soon-koi-tasks" style="color: inherit; text-decoration: none;">
 					<h2>Coming Soon: KOI Tasks</h2>
 				</a>
 				<p>In order to ensure everyone has open access to the network, we&#39;re working on making it possible for nodes to run &#39;tasks&#39; for each other to earn tokens.</p>
-				<a href="#earning-koi" id="earning-koi" style="color: inherit; text-decoration: none;">
-					<h3>Earning KOI</h3>
-				</a>
-				<p>The default task is will be called StoreCat, which gathers web data and stores it on the permaweb archive. To run StoreCat, you can use a similar implementation to the one above.</p>
-				<pre><code><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">koiTools</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;koiTools&#039;</span><span style="color: #000000">);</span>
-<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">koi</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">koiTools</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/path/to/wallet.json&#039;</span><span style="color: #000000">)</span>
-<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">result</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">koi</span><span style="color: #000000">.</span><span style="color: #795E26">runTaskByRegisteredName</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;getstorecat&#039;</span><span style="color: #000000">)</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;task:&#039;</span><span style="color: #000000">, </span><span style="color: #001080">result</span><span style="color: #000000">)</span>
-</code></pre>
-				<p>Note: Some tasks take a while to execute, so the best way to run them is with the desktop node client.</p>
-				<a href="#requesting-tasks" id="requesting-tasks" style="color: inherit; text-decoration: none;">
-					<h3>Requesting Tasks</h3>
-				</a>
-				<p>It will soon be possible to tap into the Koi network to request work. Once you have KOI tokens, you can set a bounty for a new task.</p>
-				<pre><code><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">koiTools</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;koiTools&#039;</span><span style="color: #000000">);</span>
-<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">koi</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">koiTools</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/path/to/wallet.json&#039;</span><span style="color: #000000">)</span>
-<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">koiTask</span><span style="color: #000000"> = {</span>
-<span style="color: #000000">   </span><span style="color: #001080">id :</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;getstorecat&quot;</span><span style="color: #000000">, </span><span style="color: #008000">// unique global ID *see runTaskByRegisteredName above</span>
-<span style="color: #000000">   </span><span style="color: #001080">bounty :</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;5&quot;</span><span style="color: #000000">,       </span><span style="color: #008000">// bounty per result in KOI</span>
-<span style="color: #000000">   </span><span style="color: #001080">description :</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;</span>
-<span style="color: #A31515">      Help StoreCat gather web data by running this simple web scraping task. The StoreCat does not have access to your computer, but will use your internet connection to browse the web</span><span style="color: #CD3131">.</span>
-<span style="color: #000000">   </span><span style="color: #A31515">&quot;, // long form description tex</span><span style="color: #CD3131">t</span>
-<span style="color: #000000">   </span><span style="color: #001080">expiry</span><span style="color: #000000"> : </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Date</span><span style="color: #000000"> () + </span><span style="color: #098658">5</span><span style="color: #000000">,       </span><span style="color: #008000">// expiry date after which unspent bounty tokens will be returned</span>
-<span style="color: #000000">   </span><span style="color: #001080">taskFile :</span><span style="color: #000000"> </span><span style="color: #A31515">&quot; arweave TX ID of task file&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// the execution environment currently supports most NPM bundles</span>
-<span style="color: #000000">}</span>
-<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">result</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">koi</span><span style="color: #000000">.</span><span style="color: #795E26">registerTask</span><span style="color: #000000">(</span><span style="color: #001080">koiTask</span><span style="color: #000000">)</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;registered:&#039;</span><span style="color: #000000">, </span><span style="color: #001080">result</span><span style="color: #000000">)</span>
-</code></pre>
 				<a href="#build" id="build" style="color: inherit; text-decoration: none;">
 					<h2>Build</h2>
 				</a>
@@ -201,18 +166,6 @@
 <span style="color: #001080">yarn</span><span style="color: #000000"> </span><span style="color: #001080">bundle</span>
 </code></pre>
 				<p>Test with <code>yarn test</code></p>
-				<a href="#useful-vscode-settings" id="useful-vscode-settings" style="color: inherit; text-decoration: none;">
-					<h3>Useful vscode settings</h3>
-				</a>
-				<p><code>settings.json</code></p>
-				<pre><code><span style="color: #000000">    </span><span style="color: #A31515">&quot;eslint.validate&quot;</span><span style="color: #000000">: [</span>
-<span style="color: #000000">        </span><span style="color: #A31515">&quot;typescript&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">        </span><span style="color: #A31515">&quot;typescriptreact&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    ],</span>
-<span style="color: #000000">    </span><span style="color: #A31515">&quot;editor.codeActionsOnSave&quot;</span><span style="color: #000000">: {</span>
-<span style="color: #000000">        </span><span style="color: #A31515">&quot;source.fixAll.eslint&quot;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span>
-<span style="color: #000000">    }</span>
-</code></pre>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
