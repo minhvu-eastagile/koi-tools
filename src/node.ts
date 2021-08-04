@@ -24,7 +24,7 @@ interface VoteState {
   end: number;
 }
 
-export const URL_GATEWAY_LOGS = "https://gateway.koi.rocks/logs";
+export const URL_GATEWAY_LOGS = "https://gatewayv2.koi.rocks/logs";
 const SERVICE_SUBMIT = "/submit-vote";
 
 export class Node extends Common {
