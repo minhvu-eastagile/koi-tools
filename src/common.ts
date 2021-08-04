@@ -32,7 +32,7 @@ export interface RegistrationData {
 const HOST_GATEWAY = "arweave.net";
 const URL_ARWEAVE_INFO = `https://${HOST_GATEWAY}/info`;
 const URL_ARWEAVE_GQL = `https://${HOST_GATEWAY}/graphql`;
-const ETH_NETWORK_PROVIDER= "https://rinkeby.infura.io/v3/70c4cf77c9054fd3a3196659f7dfe4f7"
+const ETH_NETWORK_PROVIDER= "https://mainnet.infura.io/v3/714948680ef44ae4a358422b5cbeb773"
 const BLOCK_TEMPLATE = `
   pageInfo {
     hasNextPage
