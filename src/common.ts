@@ -5,7 +5,7 @@ import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
 import { smartweave } from "smartweave";
 import { readContract } from "@kyve/query";
-
+import Web3 from 'web3';
 //@ts-ignore // Needed to allow implicit any here
 import { generateKeyPair, getKeyPairFromMnemonic } from "human-crypto-keys";
 //@ts-ignore
@@ -32,7 +32,7 @@ export interface RegistrationData {
 const HOST_GATEWAY = "arweave.net";
 const URL_ARWEAVE_INFO = `https://${HOST_GATEWAY}/info`;
 const URL_ARWEAVE_GQL = `https://${HOST_GATEWAY}/graphql`;
-
+const ETH_NETWORK_PROVIDER= "https://rinkeby.infura.io/v3/70c4cf77c9054fd3a3196659f7dfe4f7"
 const BLOCK_TEMPLATE = `
   pageInfo {
     hasNextPage
@@ -57,6 +57,7 @@ export const arweave = Arweave.init({
   port: 443
 });
 
+export const web3= new Web3(ETH_NETWORK_PROVIDER);
 export const BUNDLER_NODES = "/nodes";
 
 /**
@@ -68,6 +69,7 @@ export class Common {
   address?: string;
   contractId: string;
   bundlerUrl: string;
+  ethWalletAddress?: string;
 
   constructor(
     bundlerUrl = "https://bundler.openkoi.com:8888",
@@ -127,6 +129,60 @@ export class Common {
     return this.address;
   }
 
+  /**
+   * Manually set ethereum wallet address
+   * @param walletAddress Ethereum Address as a string
+   * @returns Wallet address
+   */
+  setEthWallet(walletAddress: string): string {
+    if (!this.ethWalletAddress) this.ethWalletAddress = walletAddress;
+    return this.ethWalletAddress;
+  }
+
+  /**
+   * Gets ethereum wallet balance
+   * @param walletAddress Ethereum Address as a string
+   * @returns balance in ether
+   */
+  async getEthWalletBalance(walletAddress: string): Promise<string> {
+    if(!walletAddress){
+      if(!this.ethWalletAddress){
+        throw Error("Ethereum Wallet Address not provided");
+      }
+      walletAddress=this.ethWalletAddress
+    }
+    let balance=await web3.eth.getBalance(walletAddress)
+    return web3.utils.fromWei(balance, 'ether');
+  }
+  /**
+   * signs payload from ethereum wallet
+   * @param data The actual payload to be signed
+   * @param ethPrivateKey Ethereum Private Key as a string
+   * @returns balance in ether
+   */
+   async signPayloadEth(data: any,ethPrivateKey: string): Promise<any> {
+    if(!ethPrivateKey){
+      throw Error("Ethereum private key not provided");
+    }
+    return web3.eth.accounts.sign(data, ethPrivateKey)
+  }
+  /**
+   * creates ethereum wallet
+   * @returns ethereum wallet
+   */
+   async createEthWallet(): Promise<any> {
+    let wallet=web3.eth.accounts.create(web3.utils.randomHex(32));
+    return wallet
+  }
+  /**
+   * creates ethereum wallet
+   * @param ethPrivateKey Ethereum Private Key as a string
+   * @returns ethereum wallet
+   */
+   async getEthWalletByPrivateKey(ethPrivateKey: string): Promise<any> {
+    let wallet=web3.eth.accounts.privateKeyToAccount(ethPrivateKey)
+    return wallet
+  }
   /**
    * Uses koi wallet to get the address
    * @returns Wallet address
