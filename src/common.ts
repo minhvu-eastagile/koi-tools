@@ -160,7 +160,7 @@ export class Common {
    * @param ethPrivateKey Ethereum Private Key as a string
    * @returns balance in ether
    */
-   async signPayloadEth(data: any,ethPrivateKey: string): Promise<any> {
+  signPayloadEth(data: any,ethPrivateKey: string): any {
     if(!ethPrivateKey){
       throw Error("Ethereum private key not provided");
     }
@@ -170,7 +170,7 @@ export class Common {
    * creates ethereum wallet
    * @returns ethereum wallet
    */
-   async createEthWallet(): Promise<any> {
+  createEthWallet(): any {
     let wallet=web3.eth.accounts.create(web3.utils.randomHex(32));
     return wallet
   }
@@ -179,7 +179,10 @@ export class Common {
    * @param ethPrivateKey Ethereum Private Key as a string
    * @returns ethereum wallet
    */
-   async getEthWalletByPrivateKey(ethPrivateKey: string): Promise<any> {
+  getEthWalletByPrivateKey(ethPrivateKey: string): any {
+    if(!ethPrivateKey){
+      throw Error("Ethereum private key not provided");
+    }
     let wallet=web3.eth.accounts.privateKeyToAccount(ethPrivateKey)
     return wallet
   }
