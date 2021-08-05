@@ -32,7 +32,6 @@ export interface RegistrationData {
 const HOST_GATEWAY = "arweave.net";
 const URL_ARWEAVE_INFO = `https://${HOST_GATEWAY}/info`;
 const URL_ARWEAVE_GQL = `https://${HOST_GATEWAY}/graphql`;
-const ETH_NETWORK_PROVIDER= "https://mainnet.infura.io/v3/714948680ef44ae4a358422b5cbeb773"
 const BLOCK_TEMPLATE = `
   pageInfo {
     hasNextPage
@@ -57,7 +56,6 @@ export const arweave = Arweave.init({
   port: 443
 });
 
-export const web3= new Web3(ETH_NETWORK_PROVIDER);
 export const BUNDLER_NODES = "/nodes";
 
 /**
@@ -69,6 +67,7 @@ export class Common {
   address?: string;
   contractId: string;
   bundlerUrl: string;
+  web3?:any;
   ethWalletAddress?: string;
 
   constructor(
@@ -132,27 +131,26 @@ export class Common {
   /**
    * Manually set ethereum wallet address
    * @param walletAddress Ethereum Address as a string
+   * @param ethNetworkProvider Ethereum Network Provider URL (For example https://mainnet.infura.io/v3/xxxxxxxxxxxxxxxxx in case of mainnet)
    * @returns Wallet address
    */
-  setEthWallet(walletAddress: string): string {
+  initializeEthWalletAndProvider(walletAddress: string,ethNetworkProvider: string): string {
     if (!this.ethWalletAddress) this.ethWalletAddress = walletAddress;
+    if (!ethNetworkProvider) throw Error("Ethereum Network Provider not provided in parameter");
+    this.web3= new Web3(ethNetworkProvider);
     return this.ethWalletAddress;
   }
 
   /**
    * Gets ethereum wallet balance
-   * @param walletAddress Ethereum Address as a string
    * @returns balance in ether
    */
-  async getEthWalletBalance(walletAddress: string): Promise<string> {
-    if(!walletAddress){
-      if(!this.ethWalletAddress){
-        throw Error("Ethereum Wallet Address not provided");
-      }
-      walletAddress=this.ethWalletAddress
+  async getEthWalletBalance(): Promise<string> {
+    if(!this.web3){
+      throw Error("Ethereum Wallet and Network not initialized");
     }
-    let balance=await web3.eth.getBalance(walletAddress)
-    return web3.utils.fromWei(balance, 'ether');
+    let balance=await this.web3.eth.getBalance(this.ethWalletAddress)
+    return this.web3.utils.fromWei(balance, 'ether');
   }
   /**
    * signs payload from ethereum wallet
@@ -161,17 +159,23 @@ export class Common {
    * @returns balance in ether
    */
   signPayloadEth(data: any,ethPrivateKey: string): any {
+    if(!this.web3){
+      throw Error("Ethereum Wallet and Network not initialized");
+    }
     if(!ethPrivateKey){
       throw Error("Ethereum private key not provided");
     }
-    return web3.eth.accounts.sign(data, ethPrivateKey)
+    return this.web3.eth.accounts.sign(data, ethPrivateKey)
   }
   /**
    * creates ethereum wallet
    * @returns ethereum wallet
    */
   createEthWallet(): any {
-    let wallet=web3.eth.accounts.create(web3.utils.randomHex(32));
+    if(!this.web3){
+      throw Error("Ethereum Wallet and Network not initialized");
+    }
+    let wallet=this.web3.eth.accounts.create(this.web3.utils.randomHex(32));
     return wallet
   }
   /**
@@ -180,10 +184,13 @@ export class Common {
    * @returns ethereum wallet
    */
   getEthWalletByPrivateKey(ethPrivateKey: string): any {
+    if(!this.web3){
+      throw Error("Ethereum Wallet and Network not initialized");
+    }
     if(!ethPrivateKey){
       throw Error("Ethereum private key not provided");
     }
-    let wallet=web3.eth.accounts.privateKeyToAccount(ethPrivateKey)
+    let wallet=this.web3.eth.accounts.privateKeyToAccount(ethPrivateKey)
     return wallet
   }
   /**
