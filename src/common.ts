@@ -5,7 +5,7 @@ import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
 import { smartweave } from "smartweave";
 import { readContract } from "@kyve/query";
-import Web3 from 'web3';
+import Web3 from "web3";
 //@ts-ignore // Needed to allow implicit any here
 import { generateKeyPair, getKeyPairFromMnemonic } from "human-crypto-keys";
 //@ts-ignore
@@ -67,7 +67,7 @@ export class Common {
   address?: string;
   contractId: string;
   bundlerUrl: string;
-  web3?:any;
+  web3?: any;
   ethWalletAddress?: string;
 
   constructor(
@@ -134,10 +134,14 @@ export class Common {
    * @param ethNetworkProvider Ethereum Network Provider URL (For example https://mainnet.infura.io/v3/xxxxxxxxxxxxxxxxx in case of mainnet)
    * @returns Wallet address
    */
-  initializeEthWalletAndProvider(walletAddress: string,ethNetworkProvider: string): string {
+  initializeEthWalletAndProvider(
+    walletAddress: string,
+    ethNetworkProvider: string
+  ): string {
     if (!this.ethWalletAddress) this.ethWalletAddress = walletAddress;
-    if (!ethNetworkProvider) throw Error("Ethereum Network Provider not provided in parameter");
-    this.web3= new Web3(ethNetworkProvider);
+    if (!ethNetworkProvider)
+      throw Error("Ethereum Network Provider not provided in parameter");
+    this.web3 = new Web3(ethNetworkProvider);
     return this.ethWalletAddress;
   }
 
@@ -146,11 +150,11 @@ export class Common {
    * @returns balance in ether
    */
   async getEthWalletBalance(): Promise<string> {
-    if(!this.web3){
+    if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
-    let balance=await this.web3.eth.getBalance(this.ethWalletAddress)
-    return this.web3.utils.fromWei(balance, 'ether');
+    const balance = await this.web3.eth.getBalance(this.ethWalletAddress);
+    return this.web3.utils.fromWei(balance, "ether");
   }
   /**
    * signs payload from ethereum wallet
@@ -158,25 +162,25 @@ export class Common {
    * @param ethPrivateKey Ethereum Private Key as a string
    * @returns balance in ether
    */
-  signPayloadEth(data: any,ethPrivateKey: string): any {
-    if(!this.web3){
+  signPayloadEth(data: any, ethPrivateKey: string): any {
+    if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
-    if(!ethPrivateKey){
+    if (!ethPrivateKey) {
       throw Error("Ethereum private key not provided");
     }
-    return this.web3.eth.accounts.sign(data, ethPrivateKey)
+    return this.web3.eth.accounts.sign(data, ethPrivateKey);
   }
   /**
    * creates ethereum wallet
    * @returns ethereum wallet
    */
   createEthWallet(): any {
-    if(!this.web3){
+    if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
-    let wallet=this.web3.eth.accounts.create(this.web3.utils.randomHex(32));
-    return wallet
+    const wallet = this.web3.eth.accounts.create(this.web3.utils.randomHex(32));
+    return wallet;
   }
   /**
    * creates ethereum wallet
@@ -184,14 +188,14 @@ export class Common {
    * @returns ethereum wallet
    */
   getEthWalletByPrivateKey(ethPrivateKey: string): any {
-    if(!this.web3){
+    if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
-    if(!ethPrivateKey){
+    if (!ethPrivateKey) {
       throw Error("Ethereum private key not provided");
     }
-    let wallet=this.web3.eth.accounts.privateKeyToAccount(ethPrivateKey)
-    return wallet
+    const wallet = this.web3.eth.accounts.privateKeyToAccount(ethPrivateKey);
+    return wallet;
   }
   /**
    * Uses koi wallet to get the address
@@ -953,9 +957,7 @@ export class Common {
    */
   protected async _readContract(): Promise<any> {
     try {
-      const response = await axios.get(
-        "https://devbundler.openkoi.com:8888/state/current"
-      );
+      const response = await axios.get(this.bundlerUrl + "/state/current");
       if (response.data) return response.data;
     } catch (e) {
       console.error("Cannot retrieve from bundler:", e);
