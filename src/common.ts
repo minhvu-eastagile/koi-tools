@@ -4,7 +4,6 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
 import { smartweave } from "smartweave";
-import { readContract } from "@kyve/query";
 import Web3 from "web3";
 //@ts-ignore // Needed to allow implicit any here
 import { generateKeyPair, getKeyPairFromMnemonic } from "human-crypto-keys";
@@ -962,41 +961,12 @@ export class Common {
     } catch (e) {
       console.error("Cannot retrieve from bundler:", e);
     }
-    // If no state found on the cache retrieve the state in sync from KYVE
-    const stateFromKYVE = await this.readContractFromKYVE();
-    if (stateFromKYVE) {
-      return stateFromKYVE;
-    }
+
     // Fallback to smartweave
     return smartweave.readContract(arweave, this.contractId);
   }
 
   // Private functions
-  /**
-   * Read the data from KYVE
-   * @returns STate
-   */
-  protected async readContractFromKYVE(): Promise<any> {
-    const poolID = "OFD4GqQcqp-Y_Iqh8DN_0s3a_68oMvvnekeOEu_a45I";
-    try {
-      const consoleWarn = console.warn;
-      // Required to make kyve less verbose
-      console.warn = (_) => {
-        return;
-      };
-      const computedStateFromSnapshot = await readContract(
-        poolID,
-        this.contractId,
-        false
-      );
-      console.warn = consoleWarn;
-      if (computedStateFromSnapshot) {
-        return computedStateFromSnapshot;
-      } else console.error("NOTHING RETURNED FROM KYVE");
-    } catch (e) {
-      console.error("ERROR RETRIEVING FROM KYVE", e);
-    }
-  }
   /**
    * Generate a 12 word mnemonic for an Arweave key https://github.com/acolytec3/arweave-mnemonic-keys
    * @returns {string} - a promise resolving to a 12 word mnemonic seed phrase

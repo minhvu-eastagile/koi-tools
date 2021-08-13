@@ -1,6 +1,6 @@
 {
   "name": "@_koi/sdk",
-  "version": "2.1.46",
+  "version": "2.2.0-beta.4",
   "description": "",
   "main": "./node/node.js",
   "browser": "./web/web.js",
@@ -23,11 +23,11 @@
   },
   "homepage": "https://github.com/koii-network/tools",
   "dependencies": {
-    "@kyve/query": "^0.0.0-alpha.19",
     "arweave": "^1.10.13",
     "axios": "^0.21.1",
     "dotenv": "^9.0.2",
     "human-crypto-keys": "^0.1.4",
+    "kohaku": "koii-network/kohaku",
     "nedb-promises": "^4.1.5",
     "node-polyfill-webpack-plugin": "^1.1.1",
     "pem-jwk": "^2.0.0",
