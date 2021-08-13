@@ -9,7 +9,6 @@ import axios, { AxiosResponse } from "axios";
 import * as arweaveUtils from "arweave/node/lib/utils";
 import { smartweave } from "smartweave";
 import redis, { RedisClient } from "redis";
-import { Query } from "@kyve/query";
 import { readContract } from "@kyve/query";
 
 interface VoteState {
@@ -26,6 +25,9 @@ interface VoteState {
 
 export const URL_GATEWAY_LOGS = "https://gatewayv2.koi.rocks/logs";
 const SERVICE_SUBMIT = "/submit-vote";
+
+let kyveNextTime = 0;
+const kyveReadLimit = 60000;
 
 export class Node extends Common {
   db?: Datastore;
@@ -583,21 +585,36 @@ export class Node extends Common {
       console.warn = (_) => {
         return;
       };
-      const computedStateFromSnapshot = await readContract(
-        poolID,
-        this.contractId,
-        false
-      );
-      console.warn = consoleWarn;
-      if (computedStateFromSnapshot) {
-        if (this.redisClient) {
-          await this.redisSetAsync(
-            "ContractCurrentState",
-            JSON.stringify(computedStateFromSnapshot)
+
+      if (this.redisClient) {
+        const currTime = Date.now();
+        if (kyveNextTime < currTime) {
+          kyveNextTime = currTime + kyveReadLimit;
+          const computedStateFromSnapshot = await readContract(
+            poolID,
+            this.contractId,
+            false
           );
+          console.warn = consoleWarn;
+          if (computedStateFromSnapshot) {
+            await this.redisSetAsync(
+              "ContractCurrentState",
+              JSON.stringify(computedStateFromSnapshot)
+            );
+            return computedStateFromSnapshot;
+          } else console.error("NOTHING RETURNED FROM KYVE");
+        } else {
+          return await this.redisGetAsync("ContractCurrentState");
         }
+      } else {
+        const computedStateFromSnapshot = await readContract(
+          poolID,
+          this.contractId,
+          false
+        );
+        console.warn = consoleWarn;
         return computedStateFromSnapshot;
-      } else console.error("NOTHING RETURNED FROM KYVE");
+      }
     } catch (e) {
       console.error("ERROR RETRIEVING FROM KYVE", e);
     }
