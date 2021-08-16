@@ -232,8 +232,9 @@ export class Common {
    * Gets the current contract state
    * @returns Current KOI system state
    */
-  getContractState(): Promise<any> {
-    return this._readContract();
+  async getContractState(): Promise<any> {
+    const response = await axios.get(this.bundlerUrl + "/state/current");
+    if (response.data) return response.data;
   }
 
   /**
@@ -941,17 +942,7 @@ export class Common {
    */
   protected _interactWrite(input: any): Promise<string> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
-
     return kohaku.interactWrite(arweave, wallet, this.contractId, input);
-  }
-
-  /**
-   * Read contract latest state
-   * @returns Contract
-   */
-  protected async _readContract(): Promise<any> {
-    const response = await axios.get(this.bundlerUrl + "/state/current");
-    if (response.data) return response.data;
   }
 
   // Private functions

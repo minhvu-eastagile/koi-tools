@@ -26,8 +26,8 @@ interface VoteState {
 export const URL_GATEWAY_LOGS = "https://gatewayv2.koi.rocks/logs";
 const SERVICE_SUBMIT = "/submit-vote";
 
-const kyveNextTime = 0;
-const kyveReadLimit = 60000;
+let readNextTime = 0;
+const readCooldown = 60000;
 
 export class Node extends Common {
   db?: Datastore;
@@ -225,6 +225,26 @@ export class Node extends Common {
   }
 
   /**
+   * Read contract latest state
+   * @returns Contract
+   */
+  getContractState(): Promise<any> {
+    if (process.env.NODE_MODE !== "service") return super.getContractState();
+
+    const currTime = Date.now();
+    if (readNextTime > currTime)
+      // Don't fetch new TXs if on cooldown
+      return kohaku.readContract(
+        arweave,
+        this.contractId,
+        kohaku.getCacheHeight()
+      );
+
+    readNextTime = currTime + readCooldown;
+    return kohaku.readContract(arweave, this.contractId);
+  }
+
+  /**
    * Triggers distribute reward function
    * @returns Transaction ID
    */
@@ -293,157 +313,6 @@ export class Node extends Common {
   }
 
   /**
-   * Recalculates the predicted state based on the pending transactions
-   * @param wallet
-   * @param latestContractState
-   * @param redisClient
-   * @returns
-   */
-  async recalculatePredictedState(
-    wallet: any,
-    latestContractState: any,
-    redisClient: any
-  ): Promise<any> {
-    if (!redisClient) redisClient = this.redisClient;
-    if (!wallet) wallet = this.wallet;
-    if (!latestContractState)
-      latestContractState = await kohaku.readContract(arweave, this.contractId);
-    await this._checkPendingTransactionStatus(latestContractState);
-    const pendingStateArrayStr = await this.redisGetAsync("pendingStateArray");
-    if (!pendingStateArrayStr) {
-      console.error("No pending state found");
-      return;
-    }
-    const pendingStateArray = JSON.parse(pendingStateArrayStr);
-    let finalState = { state: latestContractState };
-    let contract = undefined;
-    let from = null;
-    try {
-      contract = await kohaku.loadContract(arweave, this.contractId);
-      from = await arweave.wallets.getAddress(wallet);
-    } catch (e) {
-      console.error(e);
-    }
-    for (let i = 0; i < pendingStateArray.length; i++) {
-      try {
-        const pendingTx = pendingStateArray[i];
-        console.log(
-          `Pending transaction ${i + 1} (${pendingTx.status}) ${pendingTx.txId}`
-        );
-        if (i == 0) {
-          if (pendingStateArray[i].signedTx) {
-            finalState = await this.registerDataDryRun(
-              pendingStateArray[i].txId,
-              pendingStateArray[i].owner,
-              pendingStateArray[i].signedTx,
-              latestContractState,
-              contract
-            );
-            continue;
-          }
-          finalState = await kohaku.interactWriteDryRun(
-            arweave,
-            wallet,
-            this.contractId,
-            pendingStateArray[i].input,
-            undefined,
-            undefined,
-            undefined,
-            latestContractState,
-            from,
-            contract
-          );
-          break;
-        } else {
-          if (pendingStateArray[i].signedTx) {
-            finalState = await this.registerDataDryRun(
-              pendingStateArray[i].txId,
-              pendingStateArray[i].owner,
-              pendingStateArray[i].signedTx,
-              finalState.state,
-              contract
-            );
-            continue;
-          }
-          finalState = await kohaku.interactWriteDryRun(
-            arweave,
-            wallet,
-            this.contractId,
-            pendingStateArray[i].input,
-            undefined,
-            undefined,
-            undefined,
-            finalState.state,
-            from,
-            contract
-          );
-          // console.timeEnd("Time this");
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    console.log(
-      "Final predicted state:",
-      (finalState as any).type,
-      (finalState as any).result
-    );
-    if (finalState.state)
-      await this.redisSetAsync(
-        "ContractPredictedState",
-        JSON.stringify(finalState.state)
-      );
-  }
-
-  /**
-   * internal function, writes to contract. Used explicitly for signed transaction received from UI, uses redis
-   * @param txId
-   * @param owner
-   * @param tx
-   * @param state
-   * @returns
-   */
-  async registerDataDryRun(
-    txId: any,
-    owner: any,
-    tx: any,
-    state: any,
-    contract: any
-  ): Promise<any> {
-    const input = {
-      function: "registerData",
-      txId: txId,
-      owner: owner
-    };
-    const fromParam = await arweave.wallets.ownerToAddress(tx.owner);
-    // let currentFinalPredictedState=await redisGetAsync("TempPredictedState")
-    const finalState = await kohaku.interactWriteDryRunCustom(
-      arweave,
-      tx,
-      this.contractId,
-      input,
-      state,
-      fromParam,
-      null
-    );
-    console.log(
-      "Semi FINAL Predicted STATE for registerData",
-      finalState.state ? finalState.state.registeredRecord : "NULL"
-    );
-    if (finalState.type != "exception") {
-      await this.redisSetAsync(
-        "ContractPredictedState",
-        JSON.stringify(finalState.state)
-      );
-      return finalState;
-    } else {
-      console.error("EXCEPTION", finalState);
-    }
-    return state;
-    // this._interactWrite(input)
-  }
-
-  /**
    * Store data in Redis async
    * @param key Redis key of data
    * @param value String to store in redis
@@ -472,82 +341,6 @@ export class Node extends Common {
           err ? reject(err) : resolve(res);
         });
     });
-  }
-
-  // Protected functions
-
-  /**
-   * internal function, writes to contract. Overrides common._interactWrite, uses redis
-   * @param input
-   * @returns Transaction ID
-   */
-  protected async _interactWrite(input: any): Promise<string> {
-    const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
-
-    if (!this.redisClient)
-      return kohaku.interactWrite(arweave, wallet, this.contractId, input);
-
-    // Adding the dryRun logic
-    const pendingStateArrayStr = await this.redisGetAsync("pendingStateArray");
-    const pendingStateArray = !pendingStateArrayStr
-      ? []
-      : JSON.parse(pendingStateArrayStr);
-
-    const latestContractState = await this._readContract();
-
-    const txId = await kohaku.interactWrite(
-      arweave,
-      wallet,
-      this.contractId,
-      input
-    );
-    pendingStateArray.push({
-      status: "pending",
-      txId: txId,
-      input: input
-      // dryRunState:response.state,
-    });
-    await this.redisSetAsync(
-      "pendingStateArray",
-      JSON.stringify(pendingStateArray)
-    );
-    await this.recalculatePredictedState(
-      wallet,
-      latestContractState,
-      this.redisClient
-    );
-
-    return txId;
-  }
-
-  /**
-   * Read contract latest state
-   * @returns Contract
-   */
-  protected async _readContract(): Promise<any> {
-    if (process.env.NODE_MODE !== "service") {
-      try {
-        const response = await axios.get(this.bundlerUrl + "/state/current");
-        if (response.data) return response.data;
-      } catch (e) {
-        console.error("Cannot retrieve from bundler:", e);
-      }
-    } else {
-      if (this.redisClient) {
-        // First Attempt to retrieve the ContractPredictedState from redis
-        const stateStr = await this.redisGetAsync("ContractPredictedState");
-        if (stateStr !== null) {
-          const state = JSON.parse(stateStr);
-          if (state) {
-            const balances = state["balances"];
-            if (balances !== undefined && balances !== null) return state;
-          }
-        }
-      }
-    }
-
-    // If no state found on the cache retrieve the state in sync from kohaku
-    return await kohaku.readContract(arweave, this.contractId);
   }
 
   // Private functions
@@ -636,48 +429,6 @@ export class Node extends Common {
       .map((b) => b.toString(16).padStart(2, "0"))
       .join(""); // convert bytes to hex string
     return hashHex;
-  }
-
-  /**
-   *
-   * @param redisClient
-   * @returns
-   */
-  private async _checkPendingTransactionStatus(
-    latestContractState: any
-  ): Promise<any> {
-    const registeredRecords = latestContractState
-      ? latestContractState.registeredRecord
-      : {};
-    const pendingStateArrayStr = await this.redisGetAsync("pendingStateArray");
-    if (!pendingStateArrayStr) {
-      console.error("No pending state found");
-      return;
-    }
-    let pendingStateArray = JSON.parse(pendingStateArrayStr);
-    for (let i = 0; i < pendingStateArray.length; i++) {
-      try {
-        const arweaveTxStatus = await arweave.transactions.getStatus(
-          pendingStateArray[i].txId
-        );
-        if (
-          arweaveTxStatus.status != 202 &&
-          pendingStateArray[i].txId in registeredRecords
-        ) {
-          pendingStateArray[i].status = "Not pending";
-        }
-      } catch (e) {
-        console.error(e);
-        pendingStateArray[i].status = "Not pending";
-      }
-    }
-    pendingStateArray = pendingStateArray.filter((e: any) => {
-      return e.status == "pending";
-    });
-    await this.redisSetAsync(
-      "pendingStateArray",
-      JSON.stringify(pendingStateArray)
-    );
   }
 }
 
