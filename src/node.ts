@@ -7,10 +7,9 @@ import { readFile } from "fs/promises";
 import Datastore from "nedb-promises";
 import axios, { AxiosResponse } from "axios";
 import * as arweaveUtils from "arweave/node/lib/utils";
-import { smartweave } from "smartweave";
 import redis, { RedisClient } from "redis";
 //@ts-ignore
-import * as kohaku from "kohaku";
+import kohaku from "kohaku";
 
 interface VoteState {
   id: number;
@@ -26,6 +25,9 @@ interface VoteState {
 
 export const URL_GATEWAY_LOGS = "https://gatewayv2.koi.rocks/logs";
 const SERVICE_SUBMIT = "/submit-vote";
+
+const kyveNextTime = 0;
+const kyveReadLimit = 60000;
 
 export class Node extends Common {
   db?: Datastore;
@@ -304,7 +306,8 @@ export class Node extends Common {
   ): Promise<any> {
     if (!redisClient) redisClient = this.redisClient;
     if (!wallet) wallet = this.wallet;
-    if (!latestContractState) latestContractState = await super._readContract();
+    if (!latestContractState)
+      latestContractState = await kohaku.readContract(arweave, this.contractId);
     await this._checkPendingTransactionStatus(latestContractState);
     const pendingStateArrayStr = await this.redisGetAsync("pendingStateArray");
     if (!pendingStateArrayStr) {
@@ -316,7 +319,7 @@ export class Node extends Common {
     let contract = undefined;
     let from = null;
     try {
-      contract = await smartweave.loadContract(arweave, this.contractId);
+      contract = await kohaku.loadContract(arweave, this.contractId);
       from = await arweave.wallets.getAddress(wallet);
     } catch (e) {
       console.error(e);
@@ -338,7 +341,7 @@ export class Node extends Common {
             );
             continue;
           }
-          finalState = await smartweave.interactWriteDryRun(
+          finalState = await kohaku.interactWriteDryRun(
             arweave,
             wallet,
             this.contractId,
@@ -362,7 +365,7 @@ export class Node extends Common {
             );
             continue;
           }
-          finalState = await smartweave.interactWriteDryRun(
+          finalState = await kohaku.interactWriteDryRun(
             arweave,
             wallet,
             this.contractId,
@@ -414,7 +417,7 @@ export class Node extends Common {
     };
     const fromParam = await arweave.wallets.ownerToAddress(tx.owner);
     // let currentFinalPredictedState=await redisGetAsync("TempPredictedState")
-    const finalState = await smartweave.interactWriteDryRunCustom(
+    const finalState = await kohaku.interactWriteDryRunCustom(
       arweave,
       tx,
       this.contractId,
@@ -482,7 +485,7 @@ export class Node extends Common {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
     if (!this.redisClient)
-      return smartweave.interactWrite(arweave, wallet, this.contractId, input);
+      return kohaku.interactWrite(arweave, wallet, this.contractId, input);
 
     // Adding the dryRun logic
     const pendingStateArrayStr = await this.redisGetAsync("pendingStateArray");
@@ -492,7 +495,7 @@ export class Node extends Common {
 
     const latestContractState = await this._readContract();
 
-    const txId = await smartweave.interactWrite(
+    const txId = await kohaku.interactWrite(
       arweave,
       wallet,
       this.contractId,
@@ -542,12 +545,9 @@ export class Node extends Common {
         }
       }
     }
-    // If no state found on the cache retrieve the state in sync from kohaku
-    const kohakuState = await kohaku.readContract(arweave, this.contractId);
-    if (kohakuState) return kohakuState;
 
-    // Fallback to smartweave
-    return smartweave.readContract(arweave, this.contractId);
+    // If no state found on the cache retrieve the state in sync from kohaku
+    return await kohaku.readContract(arweave, this.contractId);
   }
 
   // Private functions

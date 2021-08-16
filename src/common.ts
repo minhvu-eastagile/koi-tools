@@ -3,12 +3,13 @@ import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
-import { smartweave } from "smartweave";
 import Web3 from "web3";
 //@ts-ignore // Needed to allow implicit any here
 import { generateKeyPair, getKeyPairFromMnemonic } from "human-crypto-keys";
 //@ts-ignore
 import { pem2jwk } from "pem-jwk";
+//@ts-ignore
+import kohaku from "kohaku";
 
 export interface BundlerPayload {
   data?: any;
@@ -259,20 +260,9 @@ export class Common {
    * @returns The NFT state object
    */
   async readNftState(txId: string): Promise<any> {
-    try {
-      const response = await axios.get(
-        `https://bundler.openkoi.com:8888/state/getNFTState?tranxId=${txId}`
-      );
-      return response.data;
-    } catch (e) {
-      console.error(
-        "Error fetching NFT data from bundler for",
-        txId,
-        "falling back to smartweave",
-        e
-      );
-    }
-    return smartweave.readContract(arweave, txId);
+    return (
+      await axios.get(this.bundlerUrl + `/state/getNFTState?tranxId=${txId}`)
+    ).data;
   }
 
   /**
@@ -717,17 +707,18 @@ export class Common {
    * Updates the state of a KID smartcontract on arweave
    * @param KIDObject - an object containing name, description, addresses and link
    * @param contractId - the contract Id for KID to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
   async updateKID(KIDObject: any, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    const txId = await kohaku.interactWrite(arweave, wallet, contractId, {
       function: "updateKID",
       ...KIDObject
     });
     return txId;
   }
+
   /**
    * Creates a NFT Collection smartcontract on arweave
    * @param collectionObject - an object containing name, description, addresses and link
@@ -813,88 +804,87 @@ export class Common {
    * @returns The NFT state object
    */
   async readState(txId: string): Promise<any> {
-    return smartweave.readContract(arweave, txId);
+    return kohaku.readContract(arweave, txId);
   }
 
   /**
    * Add new NFTs to the existing collection
    * @param nftId - The transaction id of the NFT to be added to the collection
    * @param contractId - the contract Id for Collection to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  async addToCollection(nftId: string, contractId: string): Promise<any> {
+  addToCollection(nftId: string, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    return kohaku.interactWrite(arweave, wallet, contractId, {
       function: "addToCollection",
       nftId
     });
-    return txId;
   }
 
   /**
    * Remove NFTs from the existing collection
    * @param index - The index of the NFT which is to be removed from the collection
    * @param contractId - the contract Id for Collection to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  async removeFromCollection(index: number, contractId: string): Promise<any> {
+  removeFromCollection(index: number, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    return kohaku.interactWrite(arweave, wallet, contractId, {
       function: "removeFromCollection",
       index
     });
-    return txId;
   }
+
   /**
    * Updates the view of the existing Collection
    * @param newView - The view you want to set for the collection to display (Initialized with 'default')
    * @param contractId - the contract Id for Collection to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  async updateView(newView: string, contractId: string): Promise<any> {
+  updateView(newView: string, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    return kohaku.interactWrite(arweave, wallet, contractId, {
       function: "updateView",
       newView
     });
-    return txId;
   }
+
   /**
    * Updates the index of the NFT which should be used as the preview for the collection
    * @param imageIndex - The index of the NFT which should be used as the preview for the collection
    * @param contractId - the contract Id for Collection to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  async updatePreviewImageIndex(
+  updatePreviewImageIndex(
     imageIndex: number,
     contractId: string
   ): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    return kohaku.interactWrite(arweave, wallet, contractId, {
       function: "updatePreviewImageIndex",
       imageIndex
     });
-    return txId;
   }
+
   /**
    * Updates the array of NFTs from which the collection is composed of (Can be used to reorder the NFts in the collection also)
    * @param collection - The array of NFTs from which the collection is composed of.
    * @param contractId - the contract Id for Collection to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  async updateCollection(collection: any, contractId: string): Promise<any> {
+  updateCollection(collection: any, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    return kohaku.interactWrite(arweave, wallet, contractId, {
       function: "updateCollection",
       collection
     });
-    return txId;
   }
+
   /**
    *  Calculates total Views and earned KOII for given NFTIds Array
    * @param nftIdArr - The array of NFTIds for which total Views and earned KOII will be calculated
@@ -941,17 +931,18 @@ export class Common {
       };
     }
   }
+
   // Protected functions
 
   /**
    * Writes to contract
-   * @param input Passes to smartweave write function, in order to execute a contract function
+   * @param input Passes to write function, in order to execute a contract function
    * @returns Transaction ID
    */
   protected _interactWrite(input: any): Promise<string> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    return smartweave.interactWrite(arweave, wallet, this.contractId, input);
+    return kohaku.interactWrite(arweave, wallet, this.contractId, input);
   }
 
   /**
@@ -959,17 +950,8 @@ export class Common {
    * @returns Contract
    */
   protected async _readContract(): Promise<any> {
-    try {
-      const response = await axios.get(this.bundlerUrl + "/state/current");
-      if (response.data) return response.data;
-    } catch (e) {
-      console.error(
-        "Cannot retrieve from bundler:",
-        e,
-        "falling back to smartweave"
-      );
-    }
-    return smartweave.readContract(arweave, this.contractId);
+    const response = await axios.get(this.bundlerUrl + "/state/current");
+    if (response.data) return response.data;
   }
 
   // Private functions
