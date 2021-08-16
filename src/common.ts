@@ -264,12 +264,15 @@ export class Common {
         `https://bundler.openkoi.com:8888/state/getNFTState?tranxId=${txId}`
       );
       return response.data;
-    } catch (err) {
-      console.log("ERRPR", err);
-      if (err)
-        console.error("error fetching NFT data from bundler for " + txId);
-      return smartweave.readContract(arweave, txId);
+    } catch (e) {
+      console.error(
+        "Error fetching NFT data from bundler for",
+        txId,
+        "falling back to smartweave",
+        e
+      );
     }
+    return smartweave.readContract(arweave, txId);
   }
 
   /**
@@ -803,6 +806,7 @@ export class Common {
     }
     return { message: "No Collections found for this address" };
   }
+
   /**
    * Get the state from arweave for any contract
    * @param txId Transaction ID of the NFT
@@ -959,10 +963,12 @@ export class Common {
       const response = await axios.get(this.bundlerUrl + "/state/current");
       if (response.data) return response.data;
     } catch (e) {
-      console.error("Cannot retrieve from bundler:", e);
+      console.error(
+        "Cannot retrieve from bundler:",
+        e,
+        "falling back to smartweave"
+      );
     }
-
-    // Fallback to smartweave
     return smartweave.readContract(arweave, this.contractId);
   }
 
