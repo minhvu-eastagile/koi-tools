@@ -262,7 +262,7 @@ export class Common {
   async readNftState(txId: string): Promise<any> {
     try {
       const response = await axios.get(
-        `https://devbundler.openkoi.com:8888/state/getNFTState?tranxId=${txId}`
+        `https://devbundler.openkoi.com:8888/state/nft?tranxId=${txId}`
       );
       return response.data;
     } catch (err) {
