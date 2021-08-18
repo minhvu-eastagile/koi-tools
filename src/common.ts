@@ -71,7 +71,7 @@ export class Common {
   ethWalletAddress?: string;
 
   constructor(
-    bundlerUrl = "https://bundler.openkoi.com:8888",
+    bundlerUrl = "https://devbundler.openkoi.com:8888",
     contractId = "cETTyJQYxJLVQ6nC3VxzsZf1x2-6TW2LFkGZa91gUWc"
   ) {
     this.bundlerUrl = bundlerUrl;
@@ -262,7 +262,7 @@ export class Common {
   async readNftState(txId: string): Promise<any> {
     try {
       const response = await axios.get(
-        `https://bundler.openkoi.com:8888/state/getNFTState?tranxId=${txId}`
+        `https://devbundler.openkoi.com:8888/state/getNFTState?tranxId=${txId}`
       );
       return response.data;
     } catch (err) {
