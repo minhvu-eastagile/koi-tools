@@ -148,7 +148,7 @@ export class Node extends Common {
   /**
    * propose a tafficLog for vote
    * @param arg
-   * @returns object arg.gateway(trafficlog orginal gateway id) and arg.stakeAmount(min required stake to vote)
+   * @returns object arg.gateway(trafficlog original gateway id) and arg.stakeAmount(min required stake to vote)
    */
   async submitTrafficLog(arg: any): Promise<string> {
     const TLTxId = await this._storeTrafficLogOnArweave(arg.gateWayUrl);

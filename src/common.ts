@@ -71,7 +71,7 @@ export class Common {
   ethWalletAddress?: string;
 
   constructor(
-    bundlerUrl = "https://bundler.openkoi.com:8888",
+    bundlerUrl = "https://devbundler.openkoi.com:8888",
     contractId = "cETTyJQYxJLVQ6nC3VxzsZf1x2-6TW2LFkGZa91gUWc"
   ) {
     this.bundlerUrl = bundlerUrl;
@@ -261,9 +261,13 @@ export class Common {
    * @returns The NFT state object
    */
   async readNftState(txId: string): Promise<any> {
-    return (
-      await axios.get(this.bundlerUrl + `/state/getNFTState?tranxId=${txId}`)
-    ).data;
+    try {
+      return (await axios.get(this.bundlerUrl + `/state/nft?tranxId=${txId}`))
+        .data;
+    } catch (err) {
+      console.error("Error fetching NFT data from bundler for", txId, err);
+      return kohaku.readContract(arweave, txId);
+    }
   }
 
   /**
