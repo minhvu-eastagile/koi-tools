@@ -237,7 +237,7 @@ export class Node extends Common {
       return kohaku.readContract(
         arweave,
         this.contractId,
-        kohaku.getCacheHeight()
+        -1 // Default to cache height
       );
 
     readNextTime = currTime + readCooldown;
