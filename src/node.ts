@@ -225,7 +225,7 @@ export class Node extends Common {
   }
 
   /**
-   * Read contract latest state
+   * Read last contract state from cache
    * @returns Contract
    */
   async getContractState(): Promise<any> {
@@ -242,6 +242,14 @@ export class Node extends Common {
     }
 
     return lastState;
+  }
+
+  /**
+   * Gets the contract state
+   */
+  getContractStateAwait(): Promise<any> {
+    readNextTime = Date.now() + readCooldown;
+    return kohaku.readContract(arweave, this.contractId);
   }
 
   /**
