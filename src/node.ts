@@ -228,20 +228,20 @@ export class Node extends Common {
    * Read contract latest state
    * @returns Contract
    */
-  getContractState(): Promise<any> {
+  async getContractState(): Promise<any> {
     if (process.env.NODE_MODE !== "service") return super.getContractState();
 
-    const currTime = Date.now();
-    if (readNextTime > currTime)
-      // Don't fetch new TXs if on cooldown
-      return kohaku.readContract(
-        arweave,
-        this.contractId,
-        -1 // Default to cache height
-      );
+    // Default to cache height
+    const lastState = await kohaku.readContract(arweave, this.contractId, -1);
 
-    readNextTime = currTime + readCooldown;
-    return kohaku.readContract(arweave, this.contractId);
+    // Async update cache when not on cooldown
+    const currTime = Date.now();
+    if (readNextTime < currTime) {
+      readNextTime = currTime + readCooldown;
+      kohaku.readContract(arweave, this.contractId);
+    }
+
+    return lastState;
   }
 
   /**
