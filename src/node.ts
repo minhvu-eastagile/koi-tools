@@ -27,6 +27,7 @@ export const URL_GATEWAY_LOGS = "https://gatewayv2.koi.rocks/logs";
 const SERVICE_SUBMIT = "/submit-vote";
 
 let readNextTime = 0;
+let firstContractRead = true;
 const readCooldown = 60000;
 
 export class Node extends Common {
@@ -231,8 +232,10 @@ export class Node extends Common {
   async getContractState(): Promise<any> {
     if (process.env.NODE_MODE !== "service") return super.getContractState();
 
-    // Default to cache height
-    const lastState = await kohaku.readContract(arweave, this.contractId, -1);
+    if (firstContractRead) {
+      firstContractRead = false;
+      return await this.getContractStateAwait();
+    }
 
     // Async update cache when not on cooldown
     const currTime = Date.now();
@@ -241,7 +244,8 @@ export class Node extends Common {
       kohaku.readContract(arweave, this.contractId);
     }
 
-    return lastState;
+    // Return last cache state
+    return kohaku.readContractCache(this.contractId);
   }
 
   /**
