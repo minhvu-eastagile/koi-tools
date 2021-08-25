@@ -6,7 +6,7 @@ test("Test loading", () => {
 })
 
 test("Test validate data null", async () => {
-  jest.setTimeout(20000)
+  jest.setTimeout(40000)
   const res = await ktools.validateData(39);
   expect(res).toBe(null);
 })
