@@ -25,7 +25,7 @@ interface VoteState {
 
 export const URL_GATEWAY_LOGS = "https://gatewayv2.koi.rocks/logs";
 const SERVICE_SUBMIT = "/submit-vote";
-const readCooldown = 60000;
+const READ_COOLDOWN = 60000;
 let nextReadTime = 0;
 
 export class Node extends Common {
@@ -51,7 +51,7 @@ export class Node extends Common {
     if (!cached) return kohaku.readContract(arweave, txId);
     const now = Date.now();
     if (now > nextReadTime) {
-      nextReadTime = now + readCooldown;
+      nextReadTime = now + READ_COOLDOWN;
       kohaku.readContract(arweave, txId); // Update cache but don't await
     }
     return cached;
@@ -63,7 +63,7 @@ export class Node extends Common {
    * @returns Latest contract state
    */
   getStateAwait(txId: string): any {
-    nextReadTime += Date.now() + readCooldown;
+    nextReadTime += Date.now() + READ_COOLDOWN;
     return kohaku.readContract(arweave, txId);
   }
 
