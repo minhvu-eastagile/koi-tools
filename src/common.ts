@@ -238,8 +238,9 @@ export class Common {
    * Uses koi wallet to get the address
    * @returns Wallet address
    */
-  getWalletAddress(): Promise<string> {
-    return arweave.wallets.jwkToAddress(this.wallet);
+  async getWalletAddress(): Promise<string> {
+    this.address = await arweave.wallets.jwkToAddress(this.wallet);
+    return this.address;
   }
 
   /**
