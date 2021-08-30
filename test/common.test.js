@@ -3,7 +3,6 @@
 // We don't test web with Jest because it requires browser specific functionality
 
 let kcommon = require("../dist/common");
-
 const ktools = new kcommon.Common();
 
 test("Generate wallet", async () => {
@@ -78,6 +77,29 @@ test("Get recipient transactions", async () => {
   expect(transactions.data.transactions.edges.length).toBe(3);
 });
 
+test("Sign transaction", async () => {
+  const transaction = await kcommon.arweave.createTransaction(
+    {
+      data: Buffer.from('Some data', 'utf8')
+    }
+  );
+  const signedTransaction = await ktools.signTransaction(transaction);
+  expect(typeof signedTransaction.signature).toBe("string");
+  expect(signedTransaction.signature.trim()).not.toHaveLength(0);
+});
+
+test("Get owner nfts", async () => {
+  const owner = "IsAUH6ruDQgbhr7SvfYUFzQJO-6MGXaRFfJ0FIyHvOQ";
+  const nfts = await ktools.getNftIdsByOwner(owner);
+  expect(nfts.length).toBeGreaterThan(4);
+});
+
+test("Content View", async () => {
+  const state = await ktools.getKoiiState();
+  const view = await ktools.contentView("Vh-o7iOqOYOOHhUW2z9prtrtH8hymQyjX-rTxAY0jjU", state);
+  expect(view.totalViews).toBeGreaterThan(7000);
+});
+
 test("Get NFT reward null", async () => {
   jest.setTimeout(60000);
   const reward = await ktools.getNftReward("asdf");
@@ -90,21 +112,14 @@ test("Get NFT reward", async () => {
   expect(reward).toBeGreaterThan(1600);
 });
 
-test("sign transaction", async () => {
-  const transaction = await kcommon.arweave.createTransaction(
-    {
-      data: Buffer.from('Some data', 'utf8')
-    }
-  );
-  const signedTransaction = await ktools.signTransaction(transaction);
-  expect(typeof signedTransaction.signature).toBe("string");
-  expect(signedTransaction.signature.trim()).not.toHaveLength(0);
-});
-
-test("get owner nfts", async () => {
-  const owner = "IsAUH6ruDQgbhr7SvfYUFzQJO-6MGXaRFfJ0FIyHvOQ";
-  const nfts = await ktools.getNftIdsByOwner(owner);
-  expect(nfts.length).toBeGreaterThan(4);
+test("Get Views And Earned KOII", async () => {
+  const NFT_ID_ARR = [
+    "Vh-o7iOqOYOOHhUW2z9prtrtH8hymQyjX-rTxAY0jjU",
+    "9FD54GbueDjQ1_wXgBEkLVtmaMQxdM23CIysMaAh8ng"
+  ]
+  const state = await ktools.getKoiiState();
+  const view = await ktools.getViewsAndEarnedKOII(NFT_ID_ARR, state);
+  expect(view.totalViews).toBeGreaterThan(11000);
 });
 
 // test("generate mnemonic", async () => {

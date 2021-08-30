@@ -25,16 +25,70 @@ interface VoteState {
 
 export const URL_GATEWAY_LOGS = "https://gatewayv2.koi.rocks/logs";
 const SERVICE_SUBMIT = "/submit-vote";
-
-let readNextTime = 0;
-let firstContractRead = true;
 const readCooldown = 60000;
+let nextReadTime = 0;
 
 export class Node extends Common {
   db?: Datastore;
   totalVoted = -1;
   receipts: Array<any> = [];
   redisClient?: RedisClient;
+
+  /**
+   * Retrieves the current state in kohaku cache and triggers an update for the next request
+   * @param txId Contract whose state to get
+   * @returns Latest cached contract state
+   */
+  getState(txId: string): Promise<any> | any {
+    if (process.env.NODE_MODE !== "service") return super.getState(txId);
+    let cached;
+    try {
+      cached = JSON.parse(kohaku.readContractCache(txId));
+    } catch {
+      // Not in cache
+    }
+    // If empty, return awaitable promise
+    if (!cached) return kohaku.readContract(arweave, txId);
+    const now = Date.now();
+    if (now > nextReadTime) {
+      nextReadTime = now + readCooldown;
+      kohaku.readContract(arweave, txId); // Update cache but don't await
+    }
+    return cached;
+  }
+
+  /**
+   * Retrieves the current state bypassing cache
+   * @param txId Contract whose state to get
+   * @returns Latest contract state
+   */
+  getStateAwait(txId: string): any {
+    nextReadTime += Date.now() + readCooldown;
+    return kohaku.readContract(arweave, txId);
+  }
+
+  /**
+   * @returns Cached Koii contract state
+   */
+  getKoiiState(): Promise<any> | any {
+    if (process.env.NODE_MODE !== "service") return super.getKoiiState();
+    return this.getState(this.contractId);
+  }
+
+  /**
+   * @returns Koii contract state bypassing cache
+   */
+  getKoiiStateAwait(): Promise<any> {
+    return this.getStateAwait(this.contractId);
+  }
+
+  /**
+   * Depreciated wrapper for getKoiiState
+   */
+  getContractState(): Promise<any> | any {
+    console.warn("getContractState is depreciated. Use getKoiiState");
+    return this.getKoiiState();
+  }
 
   /**
    * Asynchronously load a wallet from a UTF8 JSON file
@@ -197,7 +251,7 @@ export class Node extends Common {
    * @returns
    */
   async proposeSlash(): Promise<void> {
-    const state = await this.getContractState();
+    const state = await this.getKoiiState();
     const votes = state.votes;
     const currentTrafficLogs =
       state.stateUpdate.trafficLogs.dailyTrafficLog.filter(
@@ -226,37 +280,6 @@ export class Node extends Common {
   }
 
   /**
-   * Read last contract state from cache
-   * @returns Contract
-   */
-  async getContractState(): Promise<any> {
-    if (process.env.NODE_MODE !== "service") return super.getContractState();
-
-    if (firstContractRead) {
-      firstContractRead = false;
-      return await this.getContractStateAwait();
-    }
-
-    // Async update cache when not on cooldown
-    const currTime = Date.now();
-    if (readNextTime < currTime) {
-      readNextTime = currTime + readCooldown;
-      kohaku.readContract(arweave, this.contractId);
-    }
-
-    // Return last cache state
-    return JSON.parse(kohaku.readContractCache(this.contractId));
-  }
-
-  /**
-   * Gets the contract state
-   */
-  getContractStateAwait(): Promise<any> {
-    readNextTime = Date.now() + readCooldown;
-    return kohaku.readContract(arweave, this.contractId);
-  }
-
-  /**
    * Triggers distribute reward function
    * @returns Transaction ID
    */
@@ -273,7 +296,7 @@ export class Node extends Common {
    * @returns Whether data is valid
    */
   async validateData(voteId: number): Promise<boolean | null> {
-    const state: any = await this.getContractState();
+    const state: any = await this.getKoiiState();
     const trafficLogs = state.stateUpdate.trafficLogs;
     const currentTrafficLogs = trafficLogs.dailyTrafficLog.find(
       (trafficLog: any) => trafficLog.block === trafficLogs.open
@@ -381,7 +404,7 @@ export class Node extends Common {
    * @returns  Active vote Id
    */
   private async _activeVote(): Promise<number> {
-    const state = await this.getContractState();
+    const state = await this.getKoiiState();
     const activeVotes = state.votes.find(
       (vote: VoteState) => vote.end == state.stateUpdate.trafficLogs.close
     );
