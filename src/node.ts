@@ -9,7 +9,7 @@ import axios, { AxiosResponse } from "axios";
 import * as arweaveUtils from "arweave/node/lib/utils";
 import redis, { RedisClient } from "redis";
 //@ts-ignore
-import kohaku from "kohaku";
+import kohaku from "@_koi/kohaku";
 
 interface VoteState {
   id: number;
@@ -245,7 +245,7 @@ export class Node extends Common {
     }
 
     // Return last cache state
-    return kohaku.readContractCache(this.contractId);
+    return JSON.parse(kohaku.readContractCache(this.contractId));
   }
 
   /**

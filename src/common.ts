@@ -4,12 +4,11 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
 import Web3 from "web3";
+import { smartweave } from "smartweave";
 //@ts-ignore // Needed to allow implicit any here
 import { generateKeyPair, getKeyPairFromMnemonic } from "human-crypto-keys";
 //@ts-ignore
 import { pem2jwk } from "pem-jwk";
-//@ts-ignore
-import kohaku from "kohaku";
 
 export interface BundlerPayload {
   data?: any;
@@ -268,7 +267,7 @@ export class Common {
         .data;
     } catch (err) {
       console.error("Error fetching NFT data from bundler for", txId, err);
-      return kohaku.readContract(arweave, txId);
+      return smartweave.readContract(arweave, txId);
     }
   }
 
@@ -719,7 +718,7 @@ export class Common {
   async updateKID(KIDObject: any, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await kohaku.interactWrite(arweave, wallet, contractId, {
+    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
       function: "updateKID",
       ...KIDObject
     });
@@ -811,7 +810,7 @@ export class Common {
    * @returns The NFT state object
    */
   async readState(txId: string): Promise<any> {
-    return kohaku.readContract(arweave, txId);
+    return smartweave.readContract(arweave, txId);
   }
 
   /**
@@ -823,7 +822,7 @@ export class Common {
   addToCollection(nftId: string, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    return kohaku.interactWrite(arweave, wallet, contractId, {
+    return smartweave.interactWrite(arweave, wallet, contractId, {
       function: "addToCollection",
       nftId
     });
@@ -838,7 +837,7 @@ export class Common {
   removeFromCollection(index: number, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    return kohaku.interactWrite(arweave, wallet, contractId, {
+    return smartweave.interactWrite(arweave, wallet, contractId, {
       function: "removeFromCollection",
       index
     });
@@ -853,7 +852,7 @@ export class Common {
   updateView(newView: string, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    return kohaku.interactWrite(arweave, wallet, contractId, {
+    return smartweave.interactWrite(arweave, wallet, contractId, {
       function: "updateView",
       newView
     });
@@ -871,7 +870,7 @@ export class Common {
   ): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    return kohaku.interactWrite(arweave, wallet, contractId, {
+    return smartweave.interactWrite(arweave, wallet, contractId, {
       function: "updatePreviewImageIndex",
       imageIndex
     });
@@ -886,7 +885,7 @@ export class Common {
   updateCollection(collection: any, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    return kohaku.interactWrite(arweave, wallet, contractId, {
+    return smartweave.interactWrite(arweave, wallet, contractId, {
       function: "updateCollection",
       collection
     });
@@ -948,7 +947,7 @@ export class Common {
    */
   protected _interactWrite(input: any): Promise<string> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
-    return kohaku.interactWrite(arweave, wallet, this.contractId, input);
+    return smartweave.interactWrite(arweave, wallet, this.contractId, input);
   }
 
   // Private functions
