@@ -103,20 +103,29 @@ export class Common {
 
   /**
    * Retrieves the a state from the bundler
-   * @param txId Transaction ID of the contraact
+   * @param txId Transaction ID of the contract
    * @returns The contract state object
    */
   async getState(txId: string): Promise<any> {
+    return (await axios.get(this.bundlerUrl + `/${txId}`)).data;
+  }
+
+  /**
+   * Retrieves the a content view of an NFT from the bundler
+   * @param txId Transaction ID of the contract
+   * @returns The contract state object
+   */
+  async getNftView(txId: string): Promise<any> {
     return (await axios.get(this.bundlerUrl + `/state/nft?tranxId=${txId}`))
       .data;
   }
 
   /**
-   * Depreciated wrapper for getState
+   * Depreciated wrapper for getNftView
    */
   readNftState(txId: string): Promise<any> {
     console.warn("readNftState is depreciated, use getState instead");
-    return this.getState(txId);
+    return this.getNftView(txId);
   }
 
   /**
@@ -520,7 +529,7 @@ export class Common {
     try {
       state = state || (await this.getKoiiState());
       const rewardReport = state.stateUpdate.trafficLogs.rewardReport;
-      const nftState = await this.getState(contentTxId);
+      const nftState = await this.getNftView(contentTxId);
       let totalReward = 0,
         totalViews = 0;
       for (const report of rewardReport) {
