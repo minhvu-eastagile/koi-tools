@@ -78,7 +78,7 @@ export class Common {
     this.bundlerUrl = bundlerUrl;
     this.contractId = contractId;
     console.log(
-      "Initialized Koii Tools for true ownership and direct communication using version ",
+      "Initialized Koii Tools for true ownership and direct communication using version",
       this.contractId
     );
   }
@@ -113,19 +113,19 @@ export class Common {
   /**
    * Retrieves the a content view of an NFT from the bundler
    * @param txId Transaction ID of the contract
-   * @returns The contract state object
+   * @returns The contract state object with reward report applied
    */
-  async getNftView(txId: string): Promise<any> {
+  async contentView(txId: string): Promise<any> {
     return (await axios.get(this.bundlerUrl + `/state/nft?tranxId=${txId}`))
       .data;
   }
 
   /**
-   * Depreciated wrapper for getNftView
+   * Depreciated wrapper for contentView
    */
   readNftState(txId: string): Promise<any> {
-    console.warn("readNftState is depreciated, use getState instead");
-    return this.getNftView(txId);
+    console.warn("readNftState is depreciated, use contentView instead");
+    return this.contentView(txId);
   }
 
   /**
@@ -520,42 +520,6 @@ export class Common {
   }
 
   /**
-   * Get the updated state of an NFT
-   * @param contentTxId TxId of the content
-   * @param state Koii state
-   * @returns An object with {totalViews, totalReward, 24hrsViews}
-   */
-  async contentView(contentTxId: any, state: any): Promise<any> {
-    try {
-      state = state || (await this.getKoiiState());
-      const rewardReport = state.stateUpdate.trafficLogs.rewardReport;
-      const nftState = await this.getNftView(contentTxId);
-      let totalReward = 0,
-        totalViews = 0;
-      for (const report of rewardReport) {
-        if (contentTxId in report.logsSummary) {
-          totalViews += report.logsSummary[contentTxId];
-          totalReward +=
-            report.logsSummary[contentTxId] * report.rewardPerAttention;
-        }
-      }
-      const lastSummary = rewardReport[rewardReport.length - 1].logsSummary;
-      const twentyFourHrViews =
-        contentTxId in lastSummary ? lastSummary[contentTxId] : 0;
-
-      return {
-        ...nftState,
-        totalViews,
-        totalReward,
-        twentyFourHrViews,
-        txIdContent: contentTxId
-      };
-    } catch (err) {
-      return null;
-    }
-  }
-
-  /**
    *  Calculates total Views and earned KOII for given NFTIds Array
    * @param nftIdArr The array of NFTIds for which total Views and earned KOII will be calculated
    * @param state The Koii state used to sum views and koii
@@ -610,10 +574,7 @@ export class Common {
    * @returns Koi rewards earned or null if the transaction is not a valid Koi NFT
    */
   async getNftReward(txId: string): Promise<number | null> {
-    const state = await this.getKoiiState();
-    if (!(txId in state.registeredRecord)) return null;
-    const nft = await this.contentView(txId, state);
-    return nft.totalReward;
+    return (await this.contentView(txId)).totalReward;
   }
 
   /**

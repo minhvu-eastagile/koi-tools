@@ -26,7 +26,6 @@ test("Mint", async () => {
     qty: 5
   };
   const txId = await ktools.mint(submission);
-  console.log(txId);
   expect(typeof txId).toBe("string");
   expect(txId.trim()).not.toHaveLength(0);
 });
@@ -100,10 +99,10 @@ test("Content View", async () => {
   expect(view.totalViews).toBeGreaterThan(7000);
 });
 
-test("Get NFT reward null", async () => {
+test("Get NFT reward undefined", async () => {
   jest.setTimeout(60000);
   const reward = await ktools.getNftReward("asdf");
-  expect(reward).toBe(null);
+  expect(reward).toBe(undefined);
 });
 
 test("Get NFT reward", async () => {

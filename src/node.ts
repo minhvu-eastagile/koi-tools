@@ -91,6 +91,42 @@ export class Node extends Common {
   }
 
   /**
+   * Get the updated state of an NFT
+   * @param contentTxId TxId of the content
+   * @param koiiState Koii state
+   * @returns An object with {totalViews, totalReward, 24hrsViews}
+   */
+  async computeContentView(contentTxId: any, koiiState: any): Promise<any> {
+    try {
+      koiiState = koiiState || (await this.getKoiiState());
+      const rewardReport = koiiState.stateUpdate.trafficLogs.rewardReport;
+      const nftState = await this.getStateAwait(contentTxId);
+      let totalReward = 0,
+        totalViews = 0;
+      for (const report of rewardReport) {
+        if (contentTxId in report.logsSummary) {
+          totalViews += report.logsSummary[contentTxId];
+          totalReward +=
+            report.logsSummary[contentTxId] * report.rewardPerAttention;
+        }
+      }
+      const lastSummary = rewardReport[rewardReport.length - 1].logsSummary;
+      const twentyFourHrViews =
+        contentTxId in lastSummary ? lastSummary[contentTxId] : 0;
+
+      return {
+        ...nftState,
+        totalViews,
+        totalReward,
+        twentyFourHrViews,
+        txIdContent: contentTxId
+      };
+    } catch (err) {
+      return null;
+    }
+  }
+
+  /**
    * Asynchronously load a wallet from a UTF8 JSON file
    * @param file Path of the file to be loaded
    * @returns JSON representation of the object
