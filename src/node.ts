@@ -8,18 +8,6 @@ import redis, { RedisClient } from "redis";
 //@ts-ignore
 import kohaku from "@_koi/kohaku";
 
-interface VoteState {
-  id: number;
-  type: string;
-  voted: [];
-  stakeAmount: number;
-  yays: number;
-  nays: number;
-  bundlers: any;
-  start: number;
-  end: number;
-}
-
 export const URL_GATEWAY_LOGS = "https://gatewayv2.koi.rocks/logs";
 const READ_COOLDOWN = 60000;
 let kohakuNextRead = 0;
