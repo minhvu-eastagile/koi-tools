@@ -542,6 +542,7 @@ export class Common {
   }
 
   /**
+   * 
    * Get a list of all NFT IDs
    * @returns Array of transaction IDs which are registered NFTs
    */
@@ -552,6 +553,33 @@ export class Common {
     return txIdArr;
   }
 
+  /**
+   * 
+   * Get the list of NFTs tagged as NSFW
+   * @returns {Object} - returns a array of NFTs tagged as NSFW
+   */
+   async getNSFWNFTs(): Promise<any> {
+    const query = `
+      query {
+        transactions(tags: [{
+          name: "Action",
+          values: ["marketplace/Create"]
+        },
+        {
+          name: "NSFW",
+          values: ["true"]
+        }
+      ]) {
+          ${BLOCK_TEMPLATE}
+        }
+      }`;
+    const request = JSON.stringify({ query });
+    const gqlResp = await this.gql(request);
+    if (gqlResp && gqlResp.data.transactions.edges) {
+      return gqlResp.data.transactions.edges.map((e:any)=>e.node?e.node.id:"");
+    }
+    return { message: "No NSFW NFTs Found" };
+  }
   /**
    * Get a list of NFT IDs by owner
    * @param owner Wallet address of the owner
