@@ -542,6 +542,7 @@ export class Common {
   }
 
   /**
+   * 
    * Get a list of all NFT IDs
    * @returns Array of transaction IDs which are registered NFTs
    */
@@ -553,6 +554,7 @@ export class Common {
   }
 
   /**
+   * 
    * Get the list of NFTs tagged as NSFW
    * @returns {Object} - returns a array of NFTs tagged as NSFW
    */
