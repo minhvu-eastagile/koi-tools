@@ -556,17 +556,17 @@ export class Common {
    * Get the list of NFTs tagged as NSFW
    * @returns {Object} - returns a array of NFTs tagged as NSFW
    */
-   async getNSFWNFTs(walletAddress?: string): Promise<any> {
+   async getNSFWNFTs(): Promise<any> {
     const query = `
       query {
         transactions(tags: [{
           name: "Action",
           values: ["marketplace/Create"]
-      },
+        },
         {
           name: "NSFW",
-          values: [${true}]
-      }
+          values: ["true"]
+        }
       ]) {
           ${BLOCK_TEMPLATE}
         }
@@ -574,7 +574,7 @@ export class Common {
     const request = JSON.stringify({ query });
     const gqlResp = await this.gql(request);
     if (gqlResp && gqlResp.data.transactions.edges) {
-      return gqlResp.data.transactions.edges;
+      return gqlResp.data.transactions.edges.map((e:any)=>e.node?e.node.id:"");
     }
     return { message: "No NSFW NFTs Found" };
   }
