@@ -3,9 +3,8 @@ import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
-import { smartweave } from "smartweave";
-import { Query } from "@kyve/query";
 import Web3 from "web3";
+import { interactWrite } from "smartweave/lib/contract-interact";
 //@ts-ignore // Needed to allow implicit any here
 import { generateKeyPair, getKeyPairFromMnemonic } from "human-crypto-keys";
 //@ts-ignore
@@ -53,7 +52,9 @@ const BLOCK_TEMPLATE = `
 export const arweave = Arweave.init({
   host: HOST_GATEWAY,
   protocol: "https",
-  port: 443
+  port: 443,
+  timeout: 60000,
+  logging: false
 });
 
 export const BUNDLER_NODES = "/nodes";
@@ -77,9 +78,54 @@ export class Common {
     this.bundlerUrl = bundlerUrl;
     this.contractId = contractId;
     console.log(
-      "Initialized Koii Tools for true ownership and direct communication using version ",
+      "Initialized Koii Tools for true ownership and direct communication using version",
       this.contractId
     );
+  }
+
+  /**
+   * Gets the current contract state
+   * @returns Current KOI system state
+   */
+  async getKoiiState(): Promise<any> {
+    const response = await axios.get(this.bundlerUrl + "/state/current");
+    if (response.data) return response.data;
+  }
+
+  /**
+   * Gets the current contract state
+   * @returns Current KOI system state
+   */
+  getContractState(): Promise<any> {
+    console.warn("getContractState is depreciated, use getKoii instead");
+    return this.getKoiiState();
+  }
+
+  /**
+   * Retrieves the a state from the bundler
+   * @param txId Transaction ID of the contract
+   * @returns The contract state object
+   */
+  async getState(txId: string): Promise<any> {
+    return (await axios.get(this.bundlerUrl + `/${txId}`)).data;
+  }
+
+  /**
+   * Retrieves the a content view of an NFT from the bundler
+   * @param txId Transaction ID of the contract
+   * @returns The contract state object with reward report applied
+   */
+  async contentView(txId: string): Promise<any> {
+    return (await axios.get(this.bundlerUrl + `/state/nft?tranxId=${txId}`))
+      .data;
+  }
+
+  /**
+   * Depreciated wrapper for contentView
+   */
+  readNftState(txId: string): Promise<any> {
+    console.warn("readNftState is depreciated, use contentView instead");
+    return this.contentView(txId);
   }
 
   /**
@@ -222,18 +268,10 @@ export class Common {
    * @returns Balance as a number
    */
   async getKoiBalance(): Promise<number> {
-    const state = await this.getContractState();
+    const state = await this.getKoiiState();
     if (this.address !== undefined && this.address in state.balances)
       return state.balances[this.address];
     return 0;
-  }
-
-  /**
-   * Gets the current contract state
-   * @returns Current KOI system state
-   */
-  getContractState(): Promise<any> {
-    return this._readContract();
   }
 
   /**
@@ -252,25 +290,6 @@ export class Common {
   async getBlockHeight(): Promise<any> {
     const info = await getArweaveNetInfo();
     return info.data.height;
-  }
-
-  /**
-   * Get the NFT state from arweave, this should be the initial state
-   * @param txId Transaction ID of the NFT
-   * @returns The NFT state object
-   */
-  async readNftState(txId: string): Promise<any> {
-    try {
-      const response = await axios.get(
-        `https://devbundler.openkoi.com:8888/state/nft?tranxId=${txId}`
-      );
-      return response.data;
-    } catch (err) {
-      console.log("ERRPR", err);
-      if (err)
-        console.error("error fetching NFT data from bundler for " + txId);
-      return smartweave.readContract(arweave, txId);
-    }
   }
 
   /**
@@ -501,64 +520,48 @@ export class Common {
   }
 
   /**
-   * Get the updated state of an NFT
-   * @param contentTxId TxId of the content
-   * @param state
-   * @returns An object with {totaltViews, totalReward, 24hrsViews}
+   *  Calculates total Views and earned KOII for given NFTIds Array
+   * @param nftIdArr The array of NFTIds for which total Views and earned KOII will be calculated
+   * @param state The Koii state used to sum views and koii
+   * @returns An object containing totalViews and totalRewards
    */
-  async contentView(contentTxId: any, state: any): Promise<any> {
-    const rewardReport = state.stateUpdate.trafficLogs.rewardReport;
-
+  async getViewsAndEarnedKOII(nftIdArr: any, state: any): Promise<any> {
+    state = state || (await this.getKoiiState());
+    let rewardReport;
     try {
-      const nftState = await this.readNftState(contentTxId);
-      const contentViews = {
-        ...nftState,
-        totalViews: 0,
-        totalReward: 0,
-        twentyFourHrViews: 0,
-        txIdContent: contentTxId
-      };
-
-      rewardReport.forEach((ele: any) => {
-        const logSummary = ele.logsSummary;
-
-        for (const txId in logSummary) {
-          if (txId == contentTxId) {
-            if (rewardReport.indexOf(ele) == rewardReport.length - 1) {
-              contentViews.twentyFourHrViews = logSummary[contentTxId];
-            }
-
-            const rewardPerAttention = ele.rewardPerAttention;
-            contentViews.totalViews += logSummary[contentTxId];
-            const rewardPerLog = logSummary[contentTxId] * rewardPerAttention;
-            contentViews.totalReward += rewardPerLog;
-          }
-        }
-      });
-      return contentViews;
-    } catch (err) {
-      return null;
+      rewardReport = state.stateUpdate.trafficLogs.rewardReport;
+      if (!rewardReport.length) throw "Missing reward report";
+    } catch {
+      rewardReport = [];
     }
+    let totalViews = 0,
+      totalReward = 0;
+    for (const report of rewardReport) {
+      for (const nftId in report.logsSummary) {
+        if (!nftIdArr.includes(nftId)) continue;
+        totalViews += report.logsSummary[nftId];
+        totalReward += report.logsSummary[nftId] * report.rewardPerAttention;
+      }
+    }
+    return { totalViews, totalReward };
   }
 
   /**
-   * 
+   *
    * Get a list of all NFT IDs
    * @returns Array of transaction IDs which are registered NFTs
    */
   async retrieveAllRegisteredContent(): Promise<string[]> {
-    const state = await this.getContractState();
-    const registerRecords = state.registeredRecord;
-    const txIdArr = Object.keys(registerRecords);
-    return txIdArr;
+    const state = await this.getKoiiState();
+    return Object.keys(state.registeredRecord);
   }
 
   /**
-   * 
+   *
    * Get the list of NFTs tagged as NSFW
    * @returns {Object} - returns a array of NFTs tagged as NSFW
    */
-   async getNSFWNFTs(): Promise<any> {
+  async getNsfwNfts(): Promise<any> {
     const query = `
       query {
         transactions(tags: [{
@@ -576,7 +579,9 @@ export class Common {
     const request = JSON.stringify({ query });
     const gqlResp = await this.gql(request);
     if (gqlResp && gqlResp.data.transactions.edges) {
-      return gqlResp.data.transactions.edges.map((e:any)=>e.node?e.node.id:"");
+      return gqlResp.data.transactions.edges.map((e: any) =>
+        e.node ? e.node.id : ""
+      );
     }
     return { message: "No NSFW NFTs Found" };
   }
@@ -586,7 +591,7 @@ export class Common {
    * @returns Array containing the NFTs
    */
   async getNftIdsByOwner(owner: string): Promise<string[]> {
-    const state = await this.getContractState();
+    const state = await this.getKoiiState();
     const nfts = [];
     for (const nft in state.registeredRecord)
       if (state.registeredRecord[nft] === owner) nfts.push(nft);
@@ -599,10 +604,7 @@ export class Common {
    * @returns Koi rewards earned or null if the transaction is not a valid Koi NFT
    */
   async getNftReward(txId: string): Promise<number | null> {
-    const state = await this.getContractState();
-    if (!(txId in state.registeredRecord)) return null;
-    const nft = await this.contentView(txId, state);
-    return nft.totalReward;
+    return (await this.contentView(txId)).totalReward;
   }
 
   /**
@@ -743,17 +745,18 @@ export class Common {
    * Updates the state of a KID smartcontract on arweave
    * @param KIDObject - an object containing name, description, addresses and link
    * @param contractId - the contract Id for KID to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
   async updateKID(KIDObject: any, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    const txId = await interactWrite(arweave, wallet, contractId, {
       function: "updateKID",
       ...KIDObject
     });
     return txId;
   }
+
   /**
    * Creates a NFT Collection smartcontract on arweave
    * @param collectionObject - an object containing name, description, addresses and link
@@ -832,178 +835,97 @@ export class Common {
     }
     return { message: "No Collections found for this address" };
   }
-  /**
-   * Get the state from arweave for any contract
-   * @param txId Transaction ID of the NFT
-   * @returns The NFT state object
-   */
-  async readState(txId: string): Promise<any> {
-    return smartweave.readContract(arweave, txId);
-  }
 
   /**
    * Add new NFTs to the existing collection
    * @param nftId - The transaction id of the NFT to be added to the collection
    * @param contractId - the contract Id for Collection to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  async addToCollection(nftId: string, contractId: string): Promise<any> {
+  addToCollection(nftId: string, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    return interactWrite(arweave, wallet, contractId, {
       function: "addToCollection",
       nftId
     });
-    return txId;
   }
 
   /**
    * Remove NFTs from the existing collection
    * @param index - The index of the NFT which is to be removed from the collection
    * @param contractId - the contract Id for Collection to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  async removeFromCollection(index: number, contractId: string): Promise<any> {
+  removeFromCollection(index: number, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    return interactWrite(arweave, wallet, contractId, {
       function: "removeFromCollection",
       index
     });
-    return txId;
   }
+
   /**
    * Updates the view of the existing Collection
    * @param newView - The view you want to set for the collection to display (Initialized with 'default')
    * @param contractId - the contract Id for Collection to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  async updateView(newView: string, contractId: string): Promise<any> {
+  updateView(newView: string, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    return interactWrite(arweave, wallet, contractId, {
       function: "updateView",
       newView
     });
-    return txId;
   }
+
   /**
    * Updates the index of the NFT which should be used as the preview for the collection
    * @param imageIndex - The index of the NFT which should be used as the preview for the collection
    * @param contractId - the contract Id for Collection to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  async updatePreviewImageIndex(
+  updatePreviewImageIndex(
     imageIndex: number,
     contractId: string
   ): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    return interactWrite(arweave, wallet, contractId, {
       function: "updatePreviewImageIndex",
       imageIndex
     });
-    return txId;
   }
+
   /**
    * Updates the array of NFTs from which the collection is composed of (Can be used to reorder the NFts in the collection also)
    * @param collection - The array of NFTs from which the collection is composed of.
    * @param contractId - the contract Id for Collection to be updated
-   * @returns {txId} - returns a transaction id of arweave for the updateKID smartweave call
+   * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  async updateCollection(collection: any, contractId: string): Promise<any> {
+  updateCollection(collection: any, contractId: string): Promise<any> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await smartweave.interactWrite(arweave, wallet, contractId, {
+    return interactWrite(arweave, wallet, contractId, {
       function: "updateCollection",
       collection
     });
-    return txId;
   }
-  /**
-   *  Calculates total Views and earned KOII for given NFTIds Array
-   * @param nftIdArr - The array of NFTIds for which total Views and earned KOII will be calculated
-   * @returns {object} - returns an object containing totalViews and totalRewards
-   */
-  async getViewsAndEarnedKOII(nftIdArr: any): Promise<any> {
-    const state = await this.getContractState();
-    if (state) {
-      const rewardReport = state.stateUpdate
-        ? state.stateUpdate.trafficLogs.rewardReport
-        : [];
-      let totalViewsOverall = 0;
-      let totalRewardOverall = 0;
-      for (let i = 0; i < nftIdArr.length; i++) {
-        const contentTxId = nftIdArr[i];
-        const contentViews = {
-          totalViews: 0,
-          totalReward: 0,
-          twentyFourHrViews: 0
-        };
-        rewardReport.forEach((ele: any) => {
-          const logSummary = ele.logsSummary;
 
-          for (const txId in logSummary) {
-            if (txId == contentTxId) {
-              if (rewardReport.indexOf(ele) == rewardReport.length - 1) {
-                contentViews.twentyFourHrViews = logSummary[contentTxId];
-              }
-
-              const rewardPerAttention = ele.rewardPerAttention;
-              contentViews.totalViews += logSummary[contentTxId];
-              const rewardPerLog = logSummary[contentTxId] * rewardPerAttention;
-              contentViews.totalReward += rewardPerLog;
-            }
-          }
-        });
-        totalViewsOverall += contentViews.totalViews;
-        totalRewardOverall += contentViews.totalReward;
-      }
-      return { totalViews: totalViewsOverall, totalReward: totalRewardOverall };
-    } else {
-      return {
-        message: "Views and earned KOII cannot be extracted (State not valid)"
-      };
-    }
-  }
   // Protected functions
 
   /**
    * Writes to contract
-   * @param input Passes to smartweave write function, in order to execute a contract function
+   * @param input Passes to write function, in order to execute a contract function
    * @returns Transaction ID
    */
   protected _interactWrite(input: any): Promise<string> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
-
-    return smartweave.interactWrite(arweave, wallet, this.contractId, input);
+    return interactWrite(arweave, wallet, this.contractId, input);
   }
 
-  /**
-   * Read contract latest state
-   * @returns Contract
-   */
-  protected async _readContract(): Promise<any> {
-    try {
-      const response = await axios.get(this.bundlerUrl + "/state/current");
-      if (response.data) return response.data;
-    } catch (e) {
-      console.error("Cannot retrieve from bundler:", e);
-    }
-    // If no state found on the cache retrieve the snapshot state from 
-    console.log("RETRIEVING FROM KYVE SNAPSHOT")
-    const poolID = "OFD4GqQcqp-Y_Iqh8DN_0s3a_68oMvvnekeOEu_a45I";
-    const query = new Query(poolID);
-    try {
-      const snapshotArray:any = await query.limit(1).find();
-      if (snapshotArray && snapshotArray.length > 0)
-        return {...JSON.parse(snapshotArray[0]).state,isKYVESnapshot:true};
-      else console.error("NOTHING RETURNED FROM KYVE");
-    } catch (e) {
-      console.error("ERROR RETRIEVING FROM KYVE", e);
-    }
-    throw Error("Cannot retrieve state from Bundler or Kyve Snapshot")
-  }
   // Private functions
   /**
    * Generate a 12 word mnemonic for an Arweave key https://github.com/acolytec3/arweave-mnemonic-keys
