@@ -28,6 +28,7 @@ export interface RegistrationData {
   timestamp: number;
 }
 
+const BUNDLER_NODES = "/nodes";
 const HOST_GATEWAY = "arweave.net";
 const URL_ARWEAVE_INFO = `https://${HOST_GATEWAY}/info`;
 const URL_ARWEAVE_GQL = `https://${HOST_GATEWAY}/graphql`;
@@ -56,8 +57,6 @@ export const arweave = Arweave.init({
   timeout: 60000,
   logging: false
 });
-
-export const BUNDLER_NODES = "/nodes";
 
 /**
  * Tools for interacting with the koi network
@@ -97,12 +96,12 @@ export class Common {
    * @returns Current KOI system state
    */
   getContractState(): Promise<any> {
-    console.warn("getContractState is depreciated, use getKoii instead");
+    console.warn("getContractState is depreciated, use getKoiiState instead");
     return this.getKoiiState();
   }
 
   /**
-   * Retrieves the a state from the bundler
+   * Retrieves the a task state from the bundler
    * @param txId Transaction ID of the contract
    * @returns The contract state object
    */
@@ -111,21 +110,32 @@ export class Common {
   }
 
   /**
-   * Retrieves the a content view of an NFT from the bundler
-   * @param txId Transaction ID of the contract
-   * @returns The contract state object with reward report applied
+   * Get the updated state of an NFT from a service node
+   *   A NFT state is different from a regular state in the sense that an NFT state includes
+   *   rewards and attention from an Attention state
+   * @param id ID of the NFT to get
+   * @param attention_id ID of the attention contract to apply views and attention from
+   * @returns State of an NFT including views and reward
    */
-  async contentView(txId: string): Promise<any> {
-    return (await axios.get(this.bundlerUrl + `/state/nft?tranxId=${txId}`))
+  async getNftState(id: string, attention_id: string): Promise<any> {
+    return (await axios.get(this.bundlerUrl + `/${attention_id}/nft?id=${id}`))
       .data;
   }
 
   /**
-   * Depreciated wrapper for contentView
+   * Depreciated wrapper for getNftState
    */
-  readNftState(txId: string): Promise<any> {
-    console.warn("readNftState is depreciated, use contentView instead");
-    return this.contentView(txId);
+  contentView(id: string, attention_id: string): Promise<any> {
+    console.warn("contentView is depreciated, use getNftState instead");
+    return this.getNftState(id, attention_id);
+  }
+
+  /**
+   * Depreciated wrapper for getNftState
+   */
+  readNftState(id: string, attention_id: string): Promise<any> {
+    console.warn("readNftState is depreciated, use getNftState instead");
+    return this.getNftState(id, attention_id);
   }
 
   /**
@@ -600,11 +610,12 @@ export class Common {
 
   /**
    * Get Koi rewards earned from an NFT
-   * @param txId The transaction id to process
+   * @param id The transaction id to process
+   * @param attention_id The id of the attention contract to use for attention and rewards
    * @returns Koi rewards earned or null if the transaction is not a valid Koi NFT
    */
-  async getNftReward(txId: string): Promise<number | null> {
-    return (await this.contentView(txId)).totalReward;
+  async getNftReward(id: string, attention_id: string): Promise<number | null> {
+    return (await this.getNftState(id, attention_id)).reward;
   }
 
   /**
@@ -627,7 +638,7 @@ export class Common {
   async getNodes(
     url: string = this.bundlerUrl
   ): Promise<Array<BundlerPayload>> {
-    const res: any = await getCacheData(url + BUNDLER_NODES);
+    const res: any = await axios.get(url + BUNDLER_NODES);
     try {
       return JSON.parse(res.data);
     } catch (_e) {
@@ -960,15 +971,6 @@ export class Common {
 }
 
 /**
- * Get cached data from path
- * @param path Path to cached data
- * @returns Data as generic type T
- */
-export function getCacheData<T>(path: string): Promise<AxiosResponse<T>> {
-  return axios.get(path);
-}
-
-/**
  * Get info from Arweave net
  * @returns Axios response with info
  */
@@ -977,8 +979,6 @@ function getArweaveNetInfo(): Promise<AxiosResponse<any>> {
 }
 
 module.exports = {
-  BUNDLER_NODES,
   arweave,
-  Common,
-  getCacheData
+  Common
 };
