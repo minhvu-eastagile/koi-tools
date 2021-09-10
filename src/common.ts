@@ -87,7 +87,7 @@ export class Common {
    * @returns Current KOI system state
    */
   async getKoiiState(): Promise<any> {
-    const response = await axios.get(this.bundlerUrl + "/state/current");
+    const response = await axios.get(this.bundlerUrl + "/state");
     if (response.data) return response.data;
   }
 
