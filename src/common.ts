@@ -397,6 +397,32 @@ export class Common {
   }
 
   /**
+   * Call burn function in Koii contract
+   * @param contractId Contract ID to preregister
+   * @param contentType
+   * @param contentTxId Content TXID of the contract
+   * @returns
+   */
+  burnKoi(contractId: string, contentType: string, contentTxId: string) {
+    const input = {
+      function: "burnKoi",
+      contractId,
+      contentType,
+      contentTxId
+    };
+    return this._interactWrite(input);
+  }
+
+  /**
+   * Call migration function in a attention contract
+   * @param attentionId ID of the attention game to call migration
+   */
+  migrate(attentionId: string) {
+    const input = { function: "migratePreRegister" };
+    return this._interactWrite(input, attentionId);
+  }
+
+  /**
    * Sign transaction
    * @param tx Transaction to be signed
    * @returns signed Transaction
@@ -930,11 +956,15 @@ export class Common {
   /**
    * Writes to contract
    * @param input Passes to write function, in order to execute a contract function
+   * @param contractId Contract to write to, defaults to Koii contract
    * @returns Transaction ID
    */
-  protected _interactWrite(input: any): Promise<string> {
+  protected _interactWrite(
+    input: any,
+    contractId = this.contractId
+  ): Promise<string> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
-    return interactWrite(arweave, wallet, this.contractId, input);
+    return interactWrite(arweave, wallet, contractId, input);
   }
 
   // Private functions
