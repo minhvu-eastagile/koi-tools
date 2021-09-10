@@ -403,11 +403,10 @@ export class Common {
    * @param contentTxId Content TXID of the contract
    * @returns
    */
-  burnKoi(contractId: string, contentType: string, contentTxId: string) {
+  burnKoi(contractId: string, contentTxId: string) {
     const input = {
       function: "burnKoi",
       contractId,
-      contentType,
       contentTxId
     };
     return this._interactWrite(input);
