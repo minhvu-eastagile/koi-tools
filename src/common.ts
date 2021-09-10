@@ -399,7 +399,6 @@ export class Common {
   /**
    * Call burn function in Koii contract
    * @param contractId Contract ID to preregister
-   * @param contentType
    * @param contentTxId Content TXID of the contract
    * @returns
    */
