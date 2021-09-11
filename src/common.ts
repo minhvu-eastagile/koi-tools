@@ -71,8 +71,8 @@ export class Common {
   ethWalletAddress?: string;
 
   constructor(
-    bundlerUrl = "https://devbundler.openkoi.com:8888",
-    contractId = "cETTyJQYxJLVQ6nC3VxzsZf1x2-6TW2LFkGZa91gUWc"
+    bundlerUrl = "https://mainnet.koii.live",
+    contractId = "K9gUv_NoCkPqrrUu4l_N1LEUluygudXTblGfjVqqDCI"
   ) {
     this.bundlerUrl = bundlerUrl;
     this.contractId = contractId;
