@@ -398,8 +398,8 @@ export class Common {
 
   /**
    * Call burn function in Koii contract
-   * @param contractId Contract ID to preregister
-   * @param contentTxId Content TXID of the contract
+   * @param contractId Contract ID to preregister to, content will be migrated to this contract
+   * @param contentTxId Content TxID of the contract
    * @returns
    */
   burnKoi(contractId: string, contentTxId: string) {
@@ -413,11 +413,11 @@ export class Common {
 
   /**
    * Call migration function in a attention contract
-   * @param attentionId ID of the attention game to call migration
+   * @param contractId Contract ID to migrate content to
    */
-  migrate(attentionId: string) {
+  migrate(contractId: string) {
     const input = { function: "migratePreRegister" };
-    return this._interactWrite(input, attentionId);
+    return this._interactWrite(input, contractId);
   }
 
   /**
