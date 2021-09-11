@@ -6,16 +6,14 @@ export class Web extends Common {
    * @param attention_id ID of the attention contract to apply views and attention from
    * @returns Array of user contents
    */
-  async myContent(attention_id: string): Promise<Array<any>> {
-    // Get nft records
-    const state: any = await this.getContractState();
-    const registerRecords: any = state.registeredRecord;
+  async myContent(): Promise<Array<any> | null> {
+    if (!this.address) return null;
 
-    // Get array of my awaitable NFTs
+    // Get array of my awaitable NFT states
     const contentViewProms = [];
-    for (const txId in registerRecords)
-      if (registerRecords[txId] === this.address)
-        contentViewProms.push(this.contentView(txId, attention_id));
+    const attentionState = await this.getState("attention");
+    for (const txId in attentionState.nfts[this.address])
+      contentViewProms.push(this.getNftState(txId));
 
     // Process NFTs simultaneously then return
     return await Promise.all(contentViewProms);

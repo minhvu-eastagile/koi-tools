@@ -114,28 +114,26 @@ export class Common {
    *   A NFT state is different from a regular state in the sense that an NFT state includes
    *   rewards and attention from an Attention state
    * @param id ID of the NFT to get
-   * @param attention_id ID of the attention contract to apply views and attention from
    * @returns State of an NFT including views and reward
    */
-  async getNftState(id: string, attention_id: string): Promise<any> {
-    return (await axios.get(this.bundlerUrl + `/${attention_id}/nft?id=${id}`))
-      .data;
+  async getNftState(id: string): Promise<any> {
+    return (await axios.get(this.bundlerUrl + `/attention/nft?id=${id}`)).data;
   }
 
   /**
    * Depreciated wrapper for getNftState
    */
-  contentView(id: string, attention_id: string): Promise<any> {
+  contentView(id: string): Promise<any> {
     console.warn("contentView is depreciated, use getNftState instead");
-    return this.getNftState(id, attention_id);
+    return this.getNftState(id);
   }
 
   /**
    * Depreciated wrapper for getNftState
    */
-  readNftState(id: string, attention_id: string): Promise<any> {
+  readNftState(id: string): Promise<any> {
     console.warn("readNftState is depreciated, use getNftState instead");
-    return this.getNftState(id, attention_id);
+    return this.getNftState(id);
   }
 
   /**
@@ -418,7 +416,7 @@ export class Common {
   }
 
   /**
-   * Call migration function in a attention contract
+   * Call migration function in a contract
    * @param contractId Contract ID to migrate content to
    * @returns Transaction ID
    */
@@ -563,25 +561,29 @@ export class Common {
   /**
    *  Calculates total Views and earned KOII for given NFTIds Array
    * @param nftIdArr The array of NFTIds for which total Views and earned KOII will be calculated
-   * @param state The Koii state used to sum views and koii
+   * @param attentionState The Koii state used to sum views and koii
    * @returns An object containing totalViews and totalRewards
    */
-  async getViewsAndEarnedKOII(nftIdArr: any, state: any): Promise<any> {
-    state = state || (await this.getKoiiState());
-    let rewardReport;
-    try {
-      rewardReport = state.stateUpdate.trafficLogs.rewardReport;
-      if (!rewardReport.length) throw "Missing reward report";
-    } catch {
-      rewardReport = [];
-    }
+  async getViewsAndEarnedKOII(
+    nftIdArr: any,
+    attentionState?: any
+  ): Promise<any> {
+    attentionState = attentionState || (await this.getState("attention"));
+    const attentionReport = attentionState.task.attentionReport;
+
     let totalViews = 0,
       totalReward = 0;
-    for (const report of rewardReport) {
-      for (const nftId in report.logsSummary) {
-        if (!nftIdArr.includes(nftId)) continue;
-        totalViews += report.logsSummary[nftId];
-        totalReward += report.logsSummary[nftId] * report.rewardPerAttention;
+
+    for (const report of attentionReport) {
+      let totalAttention = 0;
+      for (const nftId in report) {
+        totalAttention += report[nftId];
+        if (nftIdArr.includes(nftId)) totalViews += report[nftId];
+      }
+
+      const rewardPerAttention = 1000 / totalAttention;
+      for (const nftId of nftIdArr) {
+        if (nftId in report) totalReward += report[nftId] * rewardPerAttention;
       }
     }
     return { totalViews, totalReward };
@@ -632,21 +634,17 @@ export class Common {
    * @returns Array containing the NFTs
    */
   async getNftIdsByOwner(owner: string): Promise<string[]> {
-    const state = await this.getKoiiState();
-    const nfts = [];
-    for (const nft in state.registeredRecord)
-      if (state.registeredRecord[nft] === owner) nfts.push(nft);
-    return nfts;
+    const attentionState = await this.getState("attention");
+    return attentionState.nfts[owner];
   }
 
   /**
    * Get Koi rewards earned from an NFT
    * @param id The transaction id to process
-   * @param attention_id The id of the attention contract to use for attention and rewards
    * @returns Koi rewards earned or null if the transaction is not a valid Koi NFT
    */
-  async getNftReward(id: string, attention_id: string): Promise<number | null> {
-    return (await this.getNftState(id, attention_id)).reward;
+  async getNftReward(id: string): Promise<number | null> {
+    return (await this.getNftState(id)).reward;
   }
 
   /**
