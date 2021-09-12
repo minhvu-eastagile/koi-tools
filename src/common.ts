@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import Arweave from "arweave";
+import smartweave from "smartweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
@@ -134,6 +135,17 @@ export class Common {
   readNftState(id: string): Promise<any> {
     console.warn("readNftState is depreciated, use getNftState instead");
     return this.getNftState(id);
+  }
+
+  /**
+   * Wrapper for smartweaveReadContract
+   *  This function is not recommended for use and should be avoided as smartweave readContract
+   *  can be very slow
+   * @param contractId contractId to be read
+   * @returns state of the contract read
+   */
+  smartweaveReadContract(contractId: string): Promise<any> {
+    return smartweave.readContract(arweave, contractId);
   }
 
   /**
