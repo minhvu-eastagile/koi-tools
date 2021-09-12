@@ -36,7 +36,10 @@ export class Node extends Common {
     const now = Date.now();
     if (now > kohakuNextRead) {
       kohakuNextRead = now + READ_COOLDOWN;
-      kohaku.readContract(arweave, txId); // Update cache but don't await
+      // Update cache but don't await
+      kohaku.readContract(arweave, txId).catch((e: any) => {
+        console.error("Koii SDK error while updating state async:", e);
+      });
     }
     return cached;
   }
