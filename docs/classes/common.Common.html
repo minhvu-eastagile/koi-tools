@@ -119,7 +119,6 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="common.Common.html#_generateMnemonic" class="tsd-kind-icon">_generate<wbr>Mnemonic</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="common.Common.html#_getKeyFromMnemonic" class="tsd-kind-icon">_get<wbr>Key<wbr>From<wbr>Mnemonic</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="common.Common.html#_interactWrite" class="tsd-kind-icon">_interact<wbr>Write</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="common.Common.html#_readContract" class="tsd-kind-icon">_read<wbr>Contract</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#addToCollection" class="tsd-kind-icon">add<wbr>ToCollection</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#contentView" class="tsd-kind-icon">content<wbr>View</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#createCollection" class="tsd-kind-icon">create<wbr>Collection</a></li>
@@ -134,12 +133,14 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getEthWalletByPrivateKey" class="tsd-kind-icon">get<wbr>Eth<wbr>Wallet<wbr>ByPrivate<wbr>Key</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getKIDByWalletAddress" class="tsd-kind-icon">getKIDBy<wbr>Wallet<wbr>Address</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getKoiBalance" class="tsd-kind-icon">get<wbr>Koi<wbr>Balance</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getNSFWNFTs" class="tsd-kind-icon">getNSFWNFTs</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getKoiiState" class="tsd-kind-icon">get<wbr>Koii<wbr>State</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getNftIdsByOwner" class="tsd-kind-icon">get<wbr>Nft<wbr>Ids<wbr>ByOwner</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getNftReward" class="tsd-kind-icon">get<wbr>Nft<wbr>Reward</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getNodes" class="tsd-kind-icon">get<wbr>Nodes</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getNsfwNfts" class="tsd-kind-icon">get<wbr>Nsfw<wbr>Nfts</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getOwnedTxs" class="tsd-kind-icon">get<wbr>Owned<wbr>Txs</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getRecipientTxs" class="tsd-kind-icon">get<wbr>Recipient<wbr>Txs</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getState" class="tsd-kind-icon">get<wbr>State</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getTransaction" class="tsd-kind-icon">get<wbr>Transaction</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getViewsAndEarnedKOII" class="tsd-kind-icon">get<wbr>Views<wbr>And<wbr>EarnedKOII</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#getWalletAddress" class="tsd-kind-icon">get<wbr>Wallet<wbr>Address</a></li>
@@ -151,7 +152,6 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#nftTransactionData" class="tsd-kind-icon">nft<wbr>Transaction<wbr>Data</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#postData" class="tsd-kind-icon">post<wbr>Data</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#readNftState" class="tsd-kind-icon">read<wbr>Nft<wbr>State</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#readState" class="tsd-kind-icon">read<wbr>State</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#registerData" class="tsd-kind-icon">register<wbr>Data</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#removeFromCollection" class="tsd-kind-icon">remove<wbr>From<wbr>Collection</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="common.Common.html#retrieveAllRegisteredContent" class="tsd-kind-icon">retrieve<wbr>All<wbr>Registered<wbr>Content</a></li>
@@ -184,7 +184,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L73">common.ts:73</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L74">common.ts:74</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -209,7 +209,7 @@
 					<div class="tsd-signature tsd-kind-icon">address<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L67">common.ts:67</a></li>
+							<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L68">common.ts:68</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -219,7 +219,7 @@
 					<div class="tsd-signature tsd-kind-icon">bundler<wbr>Url<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L69">common.ts:69</a></li>
+							<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L70">common.ts:70</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -229,7 +229,7 @@
 					<div class="tsd-signature tsd-kind-icon">contract<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L68">common.ts:68</a></li>
+							<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L69">common.ts:69</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -239,7 +239,7 @@
 					<div class="tsd-signature tsd-kind-icon">eth<wbr>Wallet<wbr>Address<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L71">common.ts:71</a></li>
+							<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L72">common.ts:72</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -249,7 +249,7 @@
 					<div class="tsd-signature tsd-kind-icon">mnemonic<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L66">common.ts:66</a></li>
+							<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L67">common.ts:67</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -259,7 +259,7 @@
 					<div class="tsd-signature tsd-kind-icon">wallet<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">JWKInterface</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L65">common.ts:65</a></li>
+							<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L66">common.ts:66</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -269,7 +269,7 @@
 					<div class="tsd-signature tsd-kind-icon">web3<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L70">common.ts:70</a></li>
+							<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L71">common.ts:71</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -286,7 +286,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L1012">common.ts:1012</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L934">common.ts:934</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -311,7 +311,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L1025">common.ts:1025</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L947">common.ts:947</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -345,7 +345,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L976">common.ts:976</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L924">common.ts:924</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -358,35 +358,12 @@
 								<li>
 									<h5>input: <span class="tsd-signature-type">any</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>Passes to smartweave write function, in order to execute a contract function</p>
+										<p>Passes to write function, in order to execute a contract function</p>
 									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<p>Transaction ID</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-					<a name="_readContract" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _read<wbr>Contract</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-						<li class="tsd-signature tsd-kind-icon">_read<wbr>Contract<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L986">common.ts:986</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Read contract latest state</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>Contract</p>
 						</li>
 					</ul>
 				</section>
@@ -400,7 +377,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L850">common.ts:850</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L845">common.ts:845</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -425,7 +402,7 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<ul>
-								<li>returns a transaction id of arweave for the updateKID smartweave call</li>
+								<li>returns a transaction id of arweave for the updateKID</li>
 							</ul>
 						</li>
 					</ul>
@@ -434,34 +411,31 @@
 					<a name="contentView" class="tsd-anchor"></a>
 					<h3>content<wbr>View</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">content<wbr>View<span class="tsd-signature-symbol">(</span>contentTxId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">content<wbr>View<span class="tsd-signature-symbol">(</span>txId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L509">common.ts:509</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L118">common.ts:118</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Get the updated state of an NFT</p>
+									<p>Retrieves the a content view of an NFT from the bundler</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>contentTxId: <span class="tsd-signature-type">any</span></h5>
+									<h5>txId: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>TxId of the content</p>
+										<p>Transaction ID of the contract</p>
 									</div>
-								</li>
-								<li>
-									<h5>state: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>An object with {totaltViews, totalReward, 24hrsViews}</p>
+							<p>The contract state object with reward report applied</p>
 						</li>
 					</ul>
 				</section>
@@ -475,7 +449,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L762">common.ts:762</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L765">common.ts:765</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -509,7 +483,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L178">common.ts:178</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L224">common.ts:224</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -532,7 +506,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L695">common.ts:695</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L697">common.ts:697</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -572,7 +546,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L89">common.ts:89</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L135">common.ts:135</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -603,7 +577,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L642">common.ts:642</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L644">common.ts:644</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -643,7 +617,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L252">common.ts:252</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L290">common.ts:290</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -666,7 +640,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L807">common.ts:807</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L810">common.ts:810</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -712,7 +686,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L235">common.ts:235</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L99">common.ts:99</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -735,7 +709,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L152">common.ts:152</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L198">common.ts:198</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -758,7 +732,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L190">common.ts:190</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L236">common.ts:236</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -790,7 +764,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L667">common.ts:667</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L669">common.ts:669</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -824,7 +798,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L224">common.ts:224</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L270">common.ts:270</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -838,27 +812,25 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getNSFWNFTs" class="tsd-anchor"></a>
-					<h3>getNSFWNFTs</h3>
+					<a name="getKoiiState" class="tsd-anchor"></a>
+					<h3>get<wbr>Koii<wbr>State</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">getNSFWNFTs<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Koii<wbr>State<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L561">common.ts:561</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L90">common.ts:90</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Get the list of NFTs tagged as NSFW</p>
+									<p>Gets the current contract state</p>
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<ul>
-								<li>returns a array of NFTs tagged as NSFW</li>
-							</ul>
+							<p>Current KOI system state</p>
 						</li>
 					</ul>
 				</section>
@@ -872,7 +844,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L588">common.ts:588</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L593">common.ts:593</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -904,7 +876,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L601">common.ts:601</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L606">common.ts:606</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -936,7 +908,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L625">common.ts:625</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L627">common.ts:627</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -959,6 +931,31 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getNsfwNfts" class="tsd-anchor"></a>
+					<h3>get<wbr>Nsfw<wbr>Nfts</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Nsfw<wbr>Nfts<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L564">common.ts:564</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get the list of NFTs tagged as NSFW</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<ul>
+								<li>returns a array of NFTs tagged as NSFW</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="getOwnedTxs" class="tsd-anchor"></a>
 					<h3>get<wbr>Owned<wbr>Txs</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -968,7 +965,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L466">common.ts:466</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L485">common.ts:485</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1012,7 +1009,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L486">common.ts:486</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L505">common.ts:505</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1047,6 +1044,38 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getState" class="tsd-anchor"></a>
+					<h3>get<wbr>State</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>State<span class="tsd-signature-symbol">(</span>txId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L109">common.ts:109</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Retrieves the a state from the bundler</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>txId: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Transaction ID of the contract</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>The contract state object</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="getTransaction" class="tsd-anchor"></a>
 					<h3>get<wbr>Transaction</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1056,7 +1085,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L244">common.ts:244</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L282">common.ts:282</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1082,13 +1111,13 @@
 					<a name="getViewsAndEarnedKOII" class="tsd-anchor"></a>
 					<h3>get<wbr>Views<wbr>And<wbr>EarnedKOII</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Views<wbr>And<wbr>EarnedKOII<span class="tsd-signature-symbol">(</span>nftIdArr<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Views<wbr>And<wbr>EarnedKOII<span class="tsd-signature-symbol">(</span>nftIdArr<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L928">common.ts:928</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L528">common.ts:528</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1104,11 +1133,15 @@
 										<p>The array of NFTIds for which total Views and earned KOII will be calculated</p>
 									</div>
 								</li>
+								<li>
+									<h5>state: <span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The Koii state used to sum views and koii</p>
+									</div>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<ul>
-								<li>returns an object containing totalViews and totalRewards</li>
-							</ul>
+							<p>An object containing totalViews and totalRewards</p>
 						</li>
 					</ul>
 				</section>
@@ -1122,7 +1155,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L204">common.ts:204</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L250">common.ts:250</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1145,7 +1178,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L213">common.ts:213</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L259">common.ts:259</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1168,7 +1201,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L613">common.ts:613</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L615">common.ts:615</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1200,7 +1233,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L137">common.ts:137</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L183">common.ts:183</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1238,7 +1271,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L108">common.ts:108</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L154">common.ts:154</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1269,7 +1302,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L346">common.ts:346</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L365">common.ts:365</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1301,7 +1334,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L393">common.ts:393</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L412">common.ts:412</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1333,7 +1366,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L437">common.ts:437</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L456">common.ts:456</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1362,57 +1395,21 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L262">common.ts:262</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L126">common.ts:126</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Get the NFT state from arweave, this should be the initial state</p>
+									<p>Depreciated wrapper for contentView</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>txId: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Transaction ID of the NFT</p>
-									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>The NFT state object</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="readState" class="tsd-anchor"></a>
-					<h3>read<wbr>State</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">read<wbr>State<span class="tsd-signature-symbol">(</span>txId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L840">common.ts:840</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Get the state from arweave for any contract</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>txId: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Transaction ID of the NFT</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>The NFT state object</p>
 						</li>
 					</ul>
 				</section>
@@ -1426,7 +1423,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L361">common.ts:361</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L380">common.ts:380</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1464,7 +1461,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L866">common.ts:866</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L860">common.ts:860</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1489,7 +1486,7 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<ul>
-								<li>returns a transaction id of arweave for the updateKID smartweave call</li>
+								<li>returns a transaction id of arweave for the updateKID</li>
 							</ul>
 						</li>
 					</ul>
@@ -1504,7 +1501,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L549">common.ts:549</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L554">common.ts:554</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1527,7 +1524,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L126">common.ts:126</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L172">common.ts:172</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1559,7 +1556,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L402">common.ts:402</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L421">common.ts:421</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1591,7 +1588,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L165">common.ts:165</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L211">common.ts:211</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1629,7 +1626,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L375">common.ts:375</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L394">common.ts:394</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1661,7 +1658,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L281">common.ts:281</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L300">common.ts:300</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1693,7 +1690,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L314">common.ts:314</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L333">common.ts:333</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1734,7 +1731,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L914">common.ts:914</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L908">common.ts:908</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1759,7 +1756,7 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<ul>
-								<li>returns a transaction id of arweave for the updateKID smartweave call</li>
+								<li>returns a transaction id of arweave for the updateKID</li>
 							</ul>
 						</li>
 					</ul>
@@ -1774,7 +1771,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L748">common.ts:748</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L750">common.ts:750</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1799,7 +1796,7 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<ul>
-								<li>returns a transaction id of arweave for the updateKID smartweave call</li>
+								<li>returns a transaction id of arweave for the updateKID</li>
 							</ul>
 						</li>
 					</ul>
@@ -1814,7 +1811,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L896">common.ts:896</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L890">common.ts:890</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1839,7 +1836,7 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<ul>
-								<li>returns a transaction id of arweave for the updateKID smartweave call</li>
+								<li>returns a transaction id of arweave for the updateKID</li>
 							</ul>
 						</li>
 					</ul>
@@ -1854,7 +1851,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L881">common.ts:881</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L875">common.ts:875</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1879,7 +1876,7 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<ul>
-								<li>returns a transaction id of arweave for the updateKID smartweave call</li>
+								<li>returns a transaction id of arweave for the updateKID</li>
 							</ul>
 						</li>
 					</ul>
@@ -1894,7 +1891,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L420">common.ts:420</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L439">common.ts:439</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1923,7 +1920,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/koii-network/tools/blob/5d24b45/src/common.ts#L297">common.ts:297</a></li>
+									<li>Defined in <a href="https://github.com/koii-network/tools/blob/f7456ee/src/common.ts#L316">common.ts:316</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2004,9 +2001,6 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 								<a href="common.Common.html#_interactWrite" class="tsd-kind-icon">_interact<wbr>Write</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-								<a href="common.Common.html#_readContract" class="tsd-kind-icon">_read<wbr>Contract</a>
-							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="common.Common.html#addToCollection" class="tsd-kind-icon">add<wbr>ToCollection</a>
 							</li>
@@ -2050,7 +2044,7 @@
 								<a href="common.Common.html#getKoiBalance" class="tsd-kind-icon">get<wbr>Koi<wbr>Balance</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="common.Common.html#getNSFWNFTs" class="tsd-kind-icon">getNSFWNFTs</a>
+								<a href="common.Common.html#getKoiiState" class="tsd-kind-icon">get<wbr>Koii<wbr>State</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="common.Common.html#getNftIdsByOwner" class="tsd-kind-icon">get<wbr>Nft<wbr>Ids<wbr>ByOwner</a>
@@ -2062,10 +2056,16 @@
 								<a href="common.Common.html#getNodes" class="tsd-kind-icon">get<wbr>Nodes</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="common.Common.html#getNsfwNfts" class="tsd-kind-icon">get<wbr>Nsfw<wbr>Nfts</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="common.Common.html#getOwnedTxs" class="tsd-kind-icon">get<wbr>Owned<wbr>Txs</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="common.Common.html#getRecipientTxs" class="tsd-kind-icon">get<wbr>Recipient<wbr>Txs</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="common.Common.html#getState" class="tsd-kind-icon">get<wbr>State</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="common.Common.html#getTransaction" class="tsd-kind-icon">get<wbr>Transaction</a>
@@ -2099,9 +2099,6 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="common.Common.html#readNftState" class="tsd-kind-icon">read<wbr>Nft<wbr>State</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="common.Common.html#readState" class="tsd-kind-icon">read<wbr>State</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="common.Common.html#registerData" class="tsd-kind-icon">register<wbr>Data</a>
