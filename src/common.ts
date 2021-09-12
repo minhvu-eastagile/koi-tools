@@ -144,7 +144,7 @@ export class Common {
    * @param contractId contractId to be read
    * @returns state of the contract read
    */
-  smartweaveReadContract(contractId: string): Promise<any> {
+  swReadContract(contractId: string): Promise<any> {
     return smartweave.readContract(arweave, contractId);
   }
 
