@@ -73,7 +73,7 @@ export class Common {
 
   constructor(
     bundlerUrl = "https://mainnet.koii.live",
-    contractId = "K9gUv_NoCkPqrrUu4l_N1LEUluygudXTblGfjVqqDCI"
+    contractId = "qzVAzvhwr1JFTPE8lIU9ZG_fuihOmBr7ewZFcT3lIUc"
   ) {
     this.bundlerUrl = bundlerUrl;
     this.contractId = contractId;
