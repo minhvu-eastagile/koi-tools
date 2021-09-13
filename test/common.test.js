@@ -101,8 +101,8 @@ test("Get owner nfts", async () => {
 test("Get NFT reward", async () => {
   jest.setTimeout(60000);
   const reward = await ktools.getNftReward("1UDe0Wqh51-O03efPzoc_HhsUPrmgBR2ziUfaI7CpZk");
-  expect(reward).toBeGreaterThanOrEqual(0);
-  //expect(reward).toBeGreaterThan(1600);
+  //expect(reward).toBeGreaterThanOrEqual(0);
+  expect(reward).toBeGreaterThan(1600);
 });
 
 test("Get Views And Earned KOII", async () => {
@@ -112,8 +112,8 @@ test("Get Views And Earned KOII", async () => {
   ]
   const view = await ktools.getViewsAndEarnedKOII(NFT_ID_ARR);
   
-  expect(view.totalViews).toBeGreaterThanOrEqual(0);
-  //expect(view.totalViews).toBeGreaterThan(11000);
+  //expect(view.totalViews).toBeGreaterThanOrEqual(0);
+  expect(view.totalViews).toBeGreaterThan(11000);
 });
 
 // test("generate mnemonic", async () => {
