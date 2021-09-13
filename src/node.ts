@@ -54,7 +54,7 @@ export class Node extends Common {
       nextReadTime = now + READ_COOLDOWN;
       // Update cache but don't await
       kohaku.readContract(arweave, txId).catch((e: any) => {
-        console.error("Koii SDK error while updating state async:", e);
+        console.error("Koii SDK error while updating state async:", e.message);
       });
     }
     return cached;
