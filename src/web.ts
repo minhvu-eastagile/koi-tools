@@ -16,7 +16,7 @@ export class Web extends Common {
       contentViewProms.push(this.getNftState(txId));
 
     // Process NFTs simultaneously then return
-    return await Promise.all(contentViewProms);
+    return await Promise.allSettled(contentViewProms);
   }
 }
 

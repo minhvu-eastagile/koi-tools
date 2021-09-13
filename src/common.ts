@@ -607,8 +607,8 @@ export class Common {
    * @returns Array of transaction IDs which are registered NFTs
    */
   async retrieveAllRegisteredContent(): Promise<string[]> {
-    const state = await this.getKoiiState();
-    return Object.keys(state.registeredRecord);
+    const state = await this.getState("attention");
+    return Object.values(state.nfts).flat() as string[];
   }
 
   /**
@@ -640,6 +640,7 @@ export class Common {
     }
     return { message: "No NSFW NFTs Found" };
   }
+
   /**
    * Get a list of NFT IDs by owner
    * @param owner Wallet address of the owner
