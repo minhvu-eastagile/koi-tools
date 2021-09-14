@@ -12,11 +12,14 @@ export class Web extends Common {
     // Get array of my awaitable NFT states
     const contentViewProms = [];
     const attentionState = await this.getState("attention");
-    for (const txId in attentionState.nfts[this.address])
+    for (const txId of attentionState.nfts[this.address])
       contentViewProms.push(this.getNftState(txId));
 
     // Process NFTs simultaneously then return
-    return await Promise.allSettled(contentViewProms);
+    const getNftsRes = await Promise.allSettled(contentViewProms);
+    return getNftsRes
+      .filter((res) => res.status === "fulfilled")
+      .map((res: any) => res.value);
   }
 }
 
