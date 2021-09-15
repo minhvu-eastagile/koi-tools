@@ -415,6 +415,14 @@ export class Common {
   }
 
   /**
+   * Throws an error if a txId is invalid
+   */
+  assertTxId(txId: any): void {
+    if (typeof txId !== "string" || txId.length !== 43)
+      throw new Error("Invalid txId");
+  }
+
+  /**
    * Call burn function in Koii contract
    * @param contractId Contract ID to preregister to, content will be migrated to this contract
    * @param contentType Description field to be interpreted by the migration contract
@@ -426,6 +434,7 @@ export class Common {
     contentType: string,
     contentTxId: string
   ): Promise<string> {
+    this.assertTxId(contractId);
     const input = {
       function: "burnKoi",
       contractId,
@@ -441,6 +450,7 @@ export class Common {
    * @returns Arweave transaction ID
    */
   migrate(contractId: string): Promise<string> {
+    this.assertTxId(contractId);
     const input = { function: "migratePreRegister" };
     return this._interactWrite(input, contractId);
   }
@@ -451,8 +461,7 @@ export class Common {
    * @returns Arweave transaction ID
    */
   async burnKoiAttention(nftTxId: string): Promise<string> {
-    if (typeof nftTxId !== "string" || nftTxId.length !== 43)
-      throw new Error("Invalid nftTxId");
+    this.assertTxId(nftTxId);
     return this.burnKoi(await this.getAttentionId(), "nft", nftTxId);
   }
 
