@@ -451,7 +451,8 @@ export class Common {
    * @returns Arweave transaction ID
    */
   async burnKoiAttention(nftTxId: string): Promise<string> {
-    if (!nftTxId) throw new Error("Invalid nftTxId");
+    if (typeof nftTxId !== "string" || nftTxId.length !== 43)
+      throw new Error("Invalid nftTxId");
     return this.burnKoi(await this.getAttentionId(), "nft", nftTxId);
   }
 
