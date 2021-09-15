@@ -400,22 +400,9 @@ export class Common {
   }
 
   /**
-   * Interact with contract to register data
-   * @param txId It has batchFile/value(string) and stake amount/value(int) as properties
-   * @param ownerId String container the owner ID
-   * @returns Transaction ID
-   */
-  registerData(txId: string, ownerId = ""): Promise<string> {
-    const input = {
-      function: "registerData",
-      txId: txId,
-      owner: ownerId
-    };
-    return this._interactWrite(input);
-  }
-
-  /**
    * Throws an error if a txId is invalid
+   *  TODO: check if txId is base64url compatible (only alphanumeric including -_ )
+   * @param txId The Arweave Transaction ID to assert.
    */
   assertTxId(txId: any): void {
     if (typeof txId !== "string" || txId.length !== 43)
