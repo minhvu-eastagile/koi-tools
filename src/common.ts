@@ -149,6 +149,14 @@ export class Common {
   }
 
   /**
+   * Gets the attention contract ID running on the bundler
+   * @returns Attention contract ID running on the bundler as a string
+   */
+  async getAttentionId(): Promise<string> {
+    return (await axios.get(this.bundlerUrl + "/attention/id")).data;
+  }
+
+  /**
    * Generates wallet optionally with a mnemonic phrase
    * @param use_mnemonic [false] Flag for enabling mnemonic phrase wallet generation
    */
@@ -410,7 +418,7 @@ export class Common {
    * Call burn function in Koii contract
    * @param contractId Contract ID to preregister to, content will be migrated to this contract
    * @param contentType Description field to be interpreted by the migration contract
-   * @param contentTxId Content TxID of the contract
+   * @param contentTxId Content TxID of the contract for preregistration
    * @returns Transaction ID
    */
   burnKoi(
@@ -430,11 +438,29 @@ export class Common {
   /**
    * Call migration function in a contract
    * @param contractId Contract ID to migrate content to
-   * @returns Transaction ID
+   * @returns Arweave transaction ID
    */
   migrate(contractId: string): Promise<string> {
     const input = { function: "migratePreRegister" };
     return this._interactWrite(input, contractId);
+  }
+
+  /**
+   * Simple wrapper for burnKoi for the attention contract
+   * @param nftTxId ID of the NFT to be preregistered
+   * @returns Arweave transaction ID
+   */
+  async burnKoiAttention(nftTxId: string): Promise<string> {
+    if (!nftTxId) throw new Error("Invalid nftTxId");
+    return this.burnKoi(await this.getAttentionId(), "nft", nftTxId);
+  }
+
+  /**
+   * Simple wrapper for migrate for the attention contract
+   * @returns Arweave transaction ID
+   */
+  async migrateAttention(): Promise<string> {
+    return this.migrate(await this.getAttentionId());
   }
 
   /**

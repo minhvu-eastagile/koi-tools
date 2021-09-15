@@ -114,6 +114,12 @@ test("Get Views And Earned KOII", async () => {
   expect(view.totalViews).toBeGreaterThan(11000);
 });
 
+test("Get attentionId", async () => {
+  const attentionId = await ktools.getAttentionId();
+  expect(typeof attentionId).toEqual("string");
+  expect(attentionId.length).toEqual(43);
+});
+
 // test("generate mnemonic", async () => {
 //   jest.setTimeout(600000);
 //   expect(await ktools.generateWallet(true)).toBeTruthy();
