@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@_koi/kohaku@^1.0.7":
-  version "1.0.7"
-  resolved "https://registry.npmjs.org/@_koi/kohaku/-/kohaku-1.0.7.tgz#2f71ed156c3debe6cb8dc29a16be017eaf7210ac"
-  integrity sha512-9IgcmVR1ZGQDg9Y/wgtjxWIvgdLAh0eGo+sQj1ekmH/7NFaWJsYr+wyP0QeMgYOxw36TAKhHHLZCA89ucPibdw==
+"@_koi/kohaku@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.npmjs.org/@_koi/kohaku/-/kohaku-1.0.8.tgz#8939d5b5c026a24e6c486444b9a8c15a330bc315"
+  integrity sha512-Gj4c9JtIbeLomDm/WiLH+Ji1KfOyRVpkVU9QsX9WtkBr4XqOoikzcGx1yVHvmYqZMkFWv75p0mrSItPNd81kCA==
   dependencies:
     smartweave "^0.4.41"
 
