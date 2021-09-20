@@ -3,7 +3,6 @@ dotenv.config();
 
 import { Common, arweave } from "./common";
 import { readFile } from "fs/promises";
-import Datastore from "nedb-promises";
 import redis, { RedisClient } from "redis";
 //@ts-ignore
 import kohaku from "@_koi/kohaku";
@@ -13,7 +12,6 @@ const READ_COOLDOWN = 60000;
 let kohakuNextRead = 0;
 
 export class Node extends Common {
-  db?: Datastore;
   totalVoted = -1;
   receipts: Array<any> = [];
   redisClient?: RedisClient;

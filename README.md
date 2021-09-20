@@ -31,7 +31,7 @@ The Koi.js library enables node.js and javascript/typescript applications to eas
    const tools = new kweb.Web();
    ```
 
-Note: This library changes often, so if `npm i koi-tools` does not work, check for beta releases on NPM under the versions section or manually build the package (See [#Build](#Build) section below).
+Note: This library changes often, so if `npm i @_koi/sdk` does not work, check for beta releases on NPM under the versions section or manually build the package (See [#Build](#Build) section below).
 
 3. Optional - Add the Arweave module to your project if your app plans to directly transact with the permaweb outside of using the Koi-tools library
 
