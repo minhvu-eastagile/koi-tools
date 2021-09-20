@@ -74,28 +74,28 @@
 					</li>
 					<li><p>Add the Koi-tools module to your script and then initialize the koi class.</p>
 						<pre><code><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">kweb</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@_koi/sdk/web.js&quot;</span><span style="color: #000000">;</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ktools</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">kweb</span><span style="color: #000000">.</span><span style="color: #795E26">Web</span><span style="color: #000000">();</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">tools</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">kweb</span><span style="color: #000000">.</span><span style="color: #795E26">Web</span><span style="color: #000000">();</span>
 </code></pre>
 						<p>or with CommonJS</p>
 						<pre><code><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">kweb</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;@_koi/sdk/web&quot;</span><span style="color: #000000">);</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ktools</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">kweb</span><span style="color: #000000">.</span><span style="color: #795E26">Web</span><span style="color: #000000">();</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">tools</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">kweb</span><span style="color: #000000">.</span><span style="color: #795E26">Web</span><span style="color: #000000">();</span>
 </code></pre>
 						<p>or using the bundle</p>
 						<pre><code><span style="color: #000000">&lt;</span><span style="color: #001080">script</span><span style="color: #000000"> </span><span style="color: #001080">src</span><span style="color: #000000">=</span><span style="color: #A31515">&quot;koi_tools.js&quot;</span><span style="color: #000000">&gt;&lt;/</span><span style="color: #267F99">script</span><span style="color: #000000">&gt;</span>
 <span style="color: #000000">...</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">kweb</span><span style="color: #000000"> = </span><span style="color: #001080">koi_tools</span><span style="color: #000000">.</span><span style="color: #001080">koi_web</span><span style="color: #000000">;</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ktools</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">kweb</span><span style="color: #000000">.</span><span style="color: #795E26">Web</span><span style="color: #000000">();</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">tools</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">kweb</span><span style="color: #000000">.</span><span style="color: #795E26">Web</span><span style="color: #000000">();</span>
 </code></pre>
 					</li>
 				</ol>
 				<p>Note: This library changes often, so if <code>npm i koi-tools</code> does not work, check for beta releases on NPM under the versions section or manually build the package. See <a href="#Build">#Build</a> section below.</p>
 				<ol start="3">
 					<li><p>Optional - Add the Arweave module to your project if your app plans to directly transact with the permaweb outside of using the Koi-tools library</p>
-						<pre><code><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">Arweave</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;arweave/node&#039;</span><span style="color: #000000">)</span>
+						<pre><code><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">Arweave</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;arweave&quot;</span><span style="color: #000000">);</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">arweave</span><span style="color: #000000"> = </span><span style="color: #001080">Arweave</span><span style="color: #000000">.</span><span style="color: #795E26">init</span><span style="color: #000000">({</span>
-<span style="color: #000000">  </span><span style="color: #001080">host:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;arweave.net&#039;</span><span style="color: #000000">,</span>
-<span style="color: #000000">  </span><span style="color: #001080">protocol:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;https&#039;</span><span style="color: #000000">,</span>
-<span style="color: #000000">  </span><span style="color: #001080">port:</span><span style="color: #000000"> </span><span style="color: #098658">443</span>
+<span style="color: #000000">   </span><span style="color: #001080">host:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;arweave.net&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">   </span><span style="color: #001080">port:</span><span style="color: #000000"> </span><span style="color: #098658">443</span><span style="color: #000000">,</span>
+<span style="color: #000000">   </span><span style="color: #001080">protocol:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;https&quot;</span>
 <span style="color: #000000">});</span>
 </code></pre>
 					</li>
@@ -105,45 +105,20 @@
 </code></pre>
 						<p>If you don&#39;t have a wallet, you can get one from the faucet at <a href="https://koi.rocks/">koi.rocks</a> or the Arweave faucet at <a href="https://faucet.arweave.org/">faucet.arweave.org</a>.</p>
 					</li>
-					<li><p>Define a function to bootstrap your app and utilize the koi-tools library <code>loadWallet</code> method to be returned the address of your wallet from the permaweb.</p>
+					<li><p>Define a function to bootstrap your app and utilize the koi-tools <code>loadWallet</code>.</p>
 						<pre><code><span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">start</span><span style="color: #000000">() {</span>
-
-<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;running async block&quot;</span><span style="color: #000000">, </span><span style="color: #001080">ktools</span><span style="color: #000000">)</span>
-
-<span style="color: #000000">  </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">ktools</span><span style="color: #000000">.</span><span style="color: #795E26">loadWallet</span><span style="color: #000000">(</span><span style="color: #001080">walletKeyLocation</span><span style="color: #000000">)</span>
-
-<span style="color: #000000">  </span><span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
-<span style="color: #000000">    </span><span style="color: #008000">// define async functions here that interact with the koi library upon app startup such as verifying signed payloads</span>
-
-<span style="color: #000000">  } </span><span style="color: #AF00DB">catch</span><span style="color: #000000"> (</span><span style="color: #001080">err</span><span style="color: #000000">) {</span>
-<span style="color: #000000">    </span><span style="color: #AF00DB">throw</span><span style="color: #000000"> </span><span style="color: #267F99">Error</span><span style="color: #000000">(</span><span style="color: #001080">err</span><span style="color: #000000">)</span>
-<span style="color: #000000">  }</span>
+<span style="color: #000000">   </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">jwk</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">tools</span><span style="color: #000000">.</span><span style="color: #795E26">loadFile</span><span style="color: #000000">(</span><span style="color: #001080">walletPath</span><span style="color: #000000">);</span>
+<span style="color: #000000">   </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">tools</span><span style="color: #000000">.</span><span style="color: #795E26">loadWallet</span><span style="color: #000000">(</span><span style="color: #001080">jwk</span><span style="color: #000000">);</span>
 
 <span style="color: #000000">}</span>
 
 <span style="color: #795E26">start</span><span style="color: #000000">()</span>
 </code></pre>
-						<p>If you are just testing with a local bundler, you can also use <code>await ktools.generateWallet()</code> to create a custom key file just for that runtime. (TODO: Expand support for 12 word seed phrase).</p>
+						<p>If you are just testing with a local bundler, you can also use <code>await tools.generateWallet()</code> to create a custom key file just for that runtime.</p>
 					</li>
-					<li><p>Check out the test.js file held in this library with examples of how to interact with koi-tools.</p>
+					<li><p>Check out the test folder for examples of how to interact with koi-tools.</p>
 					</li>
 				</ol>
-				<a href="#content-rewards" id="content-rewards" style="color: inherit; text-decoration: none;">
-					<h2>Content Rewards</h2>
-				</a>
-				<p>The Koi consensus process releases 1,000 KOI tokens per day to reward the best content that has ever been registered, proportional to the attention it receives in that time period.</p>
-				<p>Fetch all registered records:</p>
-				<pre><code><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">records</span><span style="color: #000000"> = </span><span style="color: #001080">koiTools</span><span style="color: #000000">.</span><span style="color: #795E26">retrieveAllRegisteredContent</span><span style="color: #000000">();</span>
-</code></pre>
-				<p>This will print a full list of all registered NFTs by txID, which can then be fetched using the bundler endpoints of any Koii node:</p>
-				<pre><code><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">nftdata</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">fetch</span><span style="color: #000000">(</span><span style="color: #A31515">`https://bundler.openkoi.com:8888/state/nft?tranxId=</span><span style="color: #0000FF">${</span><span style="color: #001080">id</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">)</span>
-</code></pre>
-				<p>Your wallet will receive a portion of the daily KOI tokens every time your content is viewed.</p>
-				<p>If you do not have a KOI balance, you cannot participate. Your KOI will be burned to register the content.</p>
-				<a href="#coming-soon-koi-tasks" id="coming-soon-koi-tasks" style="color: inherit; text-decoration: none;">
-					<h2>Coming Soon: KOI Tasks</h2>
-				</a>
-				<p>In order to ensure everyone has open access to the network, we&#39;re working on making it possible for nodes to run &#39;tasks&#39; for each other to earn tokens.</p>
 				<a href="#build" id="build" style="color: inherit; text-decoration: none;">
 					<h2>Build</h2>
 				</a>
@@ -159,13 +134,14 @@
 					<li>append <code>-beta.N</code> to <code>dist/package.json</code> version where N is the beta version</li>
 					<li>use <code>yarn publish dist --tag beta</code></li>
 				</ul>
+				<p>Test with <code>yarn test</code></p>
 				<a href="#webpack" id="webpack" style="color: inherit; text-decoration: none;">
 					<h3>Webpack</h3>
 				</a>
 				<pre><code><span style="color: #001080">yarn</span><span style="color: #000000"> </span><span style="color: #001080">install</span>
 <span style="color: #001080">yarn</span><span style="color: #000000"> </span><span style="color: #001080">bundle</span>
 </code></pre>
-				<p>Test with <code>yarn test</code></p>
+				<p>Test with <code>yarn test-bundle</code></p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -198,7 +174,6 @@
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
 				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
-				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>

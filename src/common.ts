@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import Arweave from "arweave";
+import smartweave from "smartweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
@@ -28,6 +29,7 @@ export interface RegistrationData {
   timestamp: number;
 }
 
+const BUNDLER_NODES = "/nodes";
 const HOST_GATEWAY = "arweave.net";
 const URL_ARWEAVE_INFO = `https://${HOST_GATEWAY}/info`;
 const URL_ARWEAVE_GQL = `https://${HOST_GATEWAY}/graphql`;
@@ -57,8 +59,6 @@ export const arweave = Arweave.init({
   logging: false
 });
 
-export const BUNDLER_NODES = "/nodes";
-
 /**
  * Tools for interacting with the koi network
  */
@@ -72,8 +72,8 @@ export class Common {
   ethWalletAddress?: string;
 
   constructor(
-    bundlerUrl = "https://devbundler.openkoi.com:8888",
-    contractId = "cETTyJQYxJLVQ6nC3VxzsZf1x2-6TW2LFkGZa91gUWc"
+    bundlerUrl = "https://mainnet.koii.live",
+    contractId = "qzVAzvhwr1JFTPE8lIU9ZG_fuihOmBr7ewZFcT3lIUc"
   ) {
     this.bundlerUrl = bundlerUrl;
     this.contractId = contractId;
@@ -88,7 +88,7 @@ export class Common {
    * @returns Current KOI system state
    */
   async getKoiiState(): Promise<any> {
-    const response = await axios.get(this.bundlerUrl + "/state/current");
+    const response = await axios.get(this.bundlerUrl + "/state");
     if (response.data) return response.data;
   }
 
@@ -97,12 +97,12 @@ export class Common {
    * @returns Current KOI system state
    */
   getContractState(): Promise<any> {
-    console.warn("getContractState is depreciated, use getKoii instead");
+    console.warn("getContractState is depreciated, use getKoiiState instead");
     return this.getKoiiState();
   }
 
   /**
-   * Retrieves the a state from the bundler
+   * Retrieves the a task state from the bundler
    * @param txId Transaction ID of the contract
    * @returns The contract state object
    */
@@ -111,21 +111,49 @@ export class Common {
   }
 
   /**
-   * Retrieves the a content view of an NFT from the bundler
-   * @param txId Transaction ID of the contract
-   * @returns The contract state object with reward report applied
+   * Get the updated state of an NFT from a service node
+   *   A NFT state is different from a regular state in the sense that an NFT state includes
+   *   rewards and attention from an Attention state
+   * @param id ID of the NFT to get
+   * @returns State of an NFT including views and reward
    */
-  async contentView(txId: string): Promise<any> {
-    return (await axios.get(this.bundlerUrl + `/state/nft?tranxId=${txId}`))
-      .data;
+  async getNftState(id: string): Promise<any> {
+    return (await axios.get(this.bundlerUrl + `/attention/nft?id=${id}`)).data;
   }
 
   /**
-   * Depreciated wrapper for contentView
+   * Depreciated wrapper for getNftState
    */
-  readNftState(txId: string): Promise<any> {
-    console.warn("readNftState is depreciated, use contentView instead");
-    return this.contentView(txId);
+  contentView(id: string): Promise<any> {
+    console.warn("contentView is depreciated, use getNftState instead");
+    return this.getNftState(id);
+  }
+
+  /**
+   * Depreciated wrapper for getNftState
+   */
+  readNftState(id: string): Promise<any> {
+    console.warn("readNftState is depreciated, use getNftState instead");
+    return this.getNftState(id);
+  }
+
+  /**
+   * Wrapper for smartweaveReadContract
+   *  This function is not recommended for use and should be avoided as smartweave readContract
+   *  can be very slow
+   * @param contractId contractId to be read
+   * @returns state of the contract read
+   */
+  swReadContract(contractId: string): Promise<any> {
+    return smartweave.readContract(arweave, contractId);
+  }
+
+  /**
+   * Gets the attention contract ID running on the bundler
+   * @returns Attention contract ID running on the bundler as a string
+   */
+  async getAttentionId(): Promise<string> {
+    return (await axios.get(this.bundlerUrl + "/attention/id")).data;
   }
 
   /**
@@ -372,18 +400,64 @@ export class Common {
   }
 
   /**
-   * Interact with contract to register data
-   * @param txId It has batchFile/value(string) and stake amount/value(int) as properties
-   * @param ownerId String container the owner ID
+   * Throws an error if a txId is invalid
+   *  TODO: check if txId is base64url compatible (only alphanumeric including -_ )
+   * @param txId The Arweave Transaction ID to assert.
+   */
+  assertTxId(txId: any): void {
+    if (typeof txId !== "string" || txId.length !== 43)
+      throw new Error("Invalid txId");
+  }
+
+  /**
+   * Call burn function in Koii contract
+   * @param contractId Contract ID to preregister to, content will be migrated to this contract
+   * @param contentType Description field to be interpreted by the migration contract
+   * @param contentTxId Content TxID of the contract for preregistration
    * @returns Transaction ID
    */
-  registerData(txId: string, ownerId = ""): Promise<string> {
+  burnKoi(
+    contractId: string,
+    contentType: string,
+    contentTxId: string
+  ): Promise<string> {
+    this.assertTxId(contractId);
     const input = {
-      function: "registerData",
-      txId: txId,
-      owner: ownerId
+      function: "burnKoi",
+      contractId,
+      contentType,
+      contentTxId
     };
     return this._interactWrite(input);
+  }
+
+  /**
+   * Call migration function in a contract
+   * @param contractId Contract ID to migrate content to
+   * @returns Arweave transaction ID
+   */
+  migrate(contractId: string): Promise<string> {
+    this.assertTxId(contractId);
+    const input = { function: "migratePreRegister" };
+    return this._interactWrite(input, contractId);
+  }
+
+  /**
+   * Simple wrapper for burnKoi for the attention contract
+   * @param nftTxId ID of the NFT to be preregistered
+   * @returns Arweave transaction ID
+   */
+  async burnKoiAttention(nftTxId: string): Promise<string> {
+    this.assertTxId(nftTxId);
+    return this.burnKoi(await this.getAttentionId(), "nft", nftTxId);
+  }
+
+  /**
+   * Simple wrapper for migrate for the attention contract
+   * @returns Arweave transaction ID
+   */
+  async migrateAttention(): Promise<string> {
+    return this.migrate(await this.getAttentionId());
   }
 
   /**
@@ -522,25 +596,29 @@ export class Common {
   /**
    *  Calculates total Views and earned KOII for given NFTIds Array
    * @param nftIdArr The array of NFTIds for which total Views and earned KOII will be calculated
-   * @param state The Koii state used to sum views and koii
+   * @param attentionState The Koii state used to sum views and koii
    * @returns An object containing totalViews and totalRewards
    */
-  async getViewsAndEarnedKOII(nftIdArr: any, state: any): Promise<any> {
-    state = state || (await this.getKoiiState());
-    let rewardReport;
-    try {
-      rewardReport = state.stateUpdate.trafficLogs.rewardReport;
-      if (!rewardReport.length) throw "Missing reward report";
-    } catch {
-      rewardReport = [];
-    }
+  async getViewsAndEarnedKOII(
+    nftIdArr: any,
+    attentionState?: any
+  ): Promise<any> {
+    attentionState = attentionState || (await this.getState("attention"));
+    const attentionReport = attentionState.task.attentionReport;
+
     let totalViews = 0,
       totalReward = 0;
-    for (const report of rewardReport) {
-      for (const nftId in report.logsSummary) {
-        if (!nftIdArr.includes(nftId)) continue;
-        totalViews += report.logsSummary[nftId];
-        totalReward += report.logsSummary[nftId] * report.rewardPerAttention;
+
+    for (const report of attentionReport) {
+      let totalAttention = 0;
+      for (const nftId in report) {
+        totalAttention += report[nftId];
+        if (nftIdArr.includes(nftId)) totalViews += report[nftId];
+      }
+
+      const rewardPerAttention = 1000 / totalAttention;
+      for (const nftId of nftIdArr) {
+        if (nftId in report) totalReward += report[nftId] * rewardPerAttention;
       }
     }
     return { totalViews, totalReward };
@@ -552,8 +630,8 @@ export class Common {
    * @returns Array of transaction IDs which are registered NFTs
    */
   async retrieveAllRegisteredContent(): Promise<string[]> {
-    const state = await this.getKoiiState();
-    return Object.keys(state.registeredRecord);
+    const state = await this.getState("attention");
+    return Object.values(state.nfts).flat() as string[];
   }
 
   /**
@@ -585,26 +663,24 @@ export class Common {
     }
     return { message: "No NSFW NFTs Found" };
   }
+
   /**
    * Get a list of NFT IDs by owner
    * @param owner Wallet address of the owner
    * @returns Array containing the NFTs
    */
   async getNftIdsByOwner(owner: string): Promise<string[]> {
-    const state = await this.getKoiiState();
-    const nfts = [];
-    for (const nft in state.registeredRecord)
-      if (state.registeredRecord[nft] === owner) nfts.push(nft);
-    return nfts;
+    const attentionState = await this.getState("attention");
+    return attentionState.nfts[owner];
   }
 
   /**
    * Get Koi rewards earned from an NFT
-   * @param txId The transaction id to process
+   * @param id The transaction id to process
    * @returns Koi rewards earned or null if the transaction is not a valid Koi NFT
    */
-  async getNftReward(txId: string): Promise<number | null> {
-    return (await this.contentView(txId)).totalReward;
+  async getNftReward(id: string): Promise<number | null> {
+    return (await this.getNftState(id)).reward;
   }
 
   /**
@@ -627,7 +703,7 @@ export class Common {
   async getNodes(
     url: string = this.bundlerUrl
   ): Promise<Array<BundlerPayload>> {
-    const res: any = await getCacheData(url + BUNDLER_NODES);
+    const res: any = await axios.get(url + BUNDLER_NODES);
     try {
       return JSON.parse(res.data);
     } catch (_e) {
@@ -919,11 +995,15 @@ export class Common {
   /**
    * Writes to contract
    * @param input Passes to write function, in order to execute a contract function
+   * @param contractId Contract to write to, defaults to Koii contract
    * @returns Transaction ID
    */
-  protected _interactWrite(input: any): Promise<string> {
+  protected _interactWrite(
+    input: any,
+    contractId = this.contractId
+  ): Promise<string> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
-    return interactWrite(arweave, wallet, this.contractId, input);
+    return interactWrite(arweave, wallet, contractId, input);
   }
 
   // Private functions
@@ -960,15 +1040,6 @@ export class Common {
 }
 
 /**
- * Get cached data from path
- * @param path Path to cached data
- * @returns Data as generic type T
- */
-export function getCacheData<T>(path: string): Promise<AxiosResponse<T>> {
-  return axios.get(path);
-}
-
-/**
  * Get info from Arweave net
  * @returns Axios response with info
  */
@@ -977,8 +1048,6 @@ function getArweaveNetInfo(): Promise<AxiosResponse<any>> {
 }
 
 module.exports = {
-  BUNDLER_NODES,
   arweave,
-  Common,
-  getCacheData
+  Common
 };

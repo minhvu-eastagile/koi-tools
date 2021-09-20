@@ -1,16 +1,9 @@
-let knode = require("../dist/node");
-let ktools = new knode.Node();
+"use strict";
+
+const knode = require("../dist/node");
+const ktools = new knode.Node();
 
 test("Test loading", () => {
   expect(true).toBe(true);
 })
-
-test("Test validate data null", async () => {
-  jest.setTimeout(40000)
-  const res = await ktools.validateData(39);
-  expect(res).toBe(null);
-})
-
-
-
 
