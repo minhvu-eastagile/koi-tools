@@ -253,6 +253,7 @@ export class Common {
    * Estimates the gas fees required for this particular tx
    * @param toAddress The address whom to send the Ether
    * @param amount The amount of ethers  to send
+   * @param privateKey The privateKey for the sender wallet
    * @returns The receipt for the transaction
    */
   async transferEth(toAddress:String,amount:Number,privateKey:String):Promise<any>{
