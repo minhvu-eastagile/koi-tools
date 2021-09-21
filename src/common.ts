@@ -230,6 +230,52 @@ export class Common {
     const balance = await this.web3.eth.getBalance(this.ethWalletAddress);
     return this.web3.utils.fromWei(balance, "ether");
   }
+
+  /**
+   * Estimates the gas fees required for this particular tx
+   * @param object A transaction object - see web3.eth.sendTransaction for detail
+   * @returns The used gas for the simulated call/transaction.
+   */
+  async estimateGasEth(object: any): Promise<Number> {
+    if (!this.web3) {
+      throw Error("Ethereum Wallet and Network not initialized");
+    }
+    if (!object) {
+      throw Error("Ethereum private key not provided");
+    }
+    const gasPrice=await this.web3.eth.getGasPrice();
+    const estimateGas=await this.web3.eth.estimateGas(object)
+    const totalGasInWei=gasPrice*estimateGas
+    return this.web3.utils.fromWei(totalGasInWei.toString(), "ether");
+  }
+
+  /**
+   * Estimates the gas fees required for this particular tx
+   * @param toAddress The address whom to send the Ether
+   * @param amount The amount of ethers  to send
+   * @param privateKey The privateKey for the sender wallet
+   * @returns The receipt for the transaction
+   */
+  async transferEth(toAddress:String,amount:Number,privateKey:String):Promise<any>{
+    if (!this.web3) {
+      throw Error("Ethereum Wallet and Network not initialized");
+    }
+    if(!this.ethWalletAddress){
+      throw Error("Ethereum Wallet Address is not set");
+    }
+    const amountToSend = this.web3.utils.toWei(amount.toString(), "ether"); // Convert to wei value
+
+    const rawTx={
+      to:toAddress,
+      value:amountToSend,
+      gas:0
+    }
+    const estimateGas=await this.web3.eth.estimateGas(rawTx)
+    rawTx.gas=estimateGas
+    let signTx=await this.web3.eth.accounts.signTransaction(rawTx,privateKey)
+    const receipt = await this.web3.eth.sendSignedTransaction(signTx.rawTransaction);
+    return receipt
+  }
   /**
    * signs payload from ethereum wallet
    * @param data The actual payload to be signed
