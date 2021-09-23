@@ -379,7 +379,7 @@ export class Common {
       qty: qty
     };
 
-    return this._interactWrite(input);
+    return this.interactWrite(input);
   }
 
   /**
@@ -395,7 +395,7 @@ export class Common {
       qty: qty
     };
 
-    return this._interactWrite(input);
+    return this.interactWrite(input);
   }
 
   /**
@@ -421,7 +421,7 @@ export class Common {
         return transaction.id;
       }
       case "KOI": {
-        const txid = await this._interactWrite(input);
+        const txid = await this.interactWrite(input);
         return txid;
       }
 
@@ -442,7 +442,28 @@ export class Common {
       qty: arg.qty,
       target: arg.targetAddress
     };
-    return this._interactWrite(input);
+    return this.interactWrite(input);
+  }
+
+  /**
+   * Transfer NFT ownership
+   * @param nftId NFT ID to transfer
+   * @param qty Quantity of NFT balance to transfer
+   * @param target Target address to transfer ownership to
+   * @returns Arweave transaction ID
+   */
+  transferNft(nftId: string, qty: number, target: string): Promise<string> {
+    this.assertTxId(nftId);
+    if (!Number.isInteger(qty) || qty < 1)
+      throw new Error("qty must be a positive integer");
+    if (typeof target !== "string") throw new Error("target must be a string");
+
+    const input = {
+      function: "transfer",
+      qty,
+      target
+    };
+    return this.interactWrite(input, nftId);
   }
 
   /**
@@ -474,7 +495,7 @@ export class Common {
       contentType,
       contentTxId
     };
-    return this._interactWrite(input);
+    return this.interactWrite(input);
   }
 
   /**
@@ -485,7 +506,7 @@ export class Common {
   migrate(contractId: string): Promise<string> {
     this.assertTxId(contractId);
     const input = { function: "migratePreRegister" };
-    return this._interactWrite(input, contractId);
+    return this.interactWrite(input, contractId);
   }
 
   /**
@@ -1036,18 +1057,13 @@ export class Common {
     });
   }
 
-  // Protected functions
-
   /**
    * Writes to contract
    * @param input Passes to write function, in order to execute a contract function
    * @param contractId Contract to write to, defaults to Koii contract
    * @returns Transaction ID
    */
-  protected _interactWrite(
-    input: any,
-    contractId = this.contractId
-  ): Promise<string> {
+  interactWrite(input: any, contractId = this.contractId): Promise<string> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
     return interactWrite(arweave, wallet, contractId, input);
   }
