@@ -55,7 +55,7 @@ export const arweave = Arweave.init({
   host: HOST_GATEWAY,
   protocol: "https",
   port: 443,
-  timeout: 10000, // Set timeout to 10000 to prevent denial of service attacks, will cas Out of Memory error if too high
+  timeout: 10000, // Set timeout to 10000 to prevent denial of service attacks, causes Out of Memory error if too high
   logging: false
 });
 
