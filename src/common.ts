@@ -711,7 +711,7 @@ export class Common {
    */
   async retrieveAllRegisteredContent(): Promise<string[]> {
     const state = await this.getState("attention");
-    return Object.keys(state.nfts).flat() as string[];
+    return Object.keys(state.nfts) as string[];
   }
 
   /**
