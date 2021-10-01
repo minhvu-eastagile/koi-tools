@@ -1,6 +1,6 @@
 {
   "name": "@_koi/sdk",
-  "version": "2.3.5",
+  "version": "2.3.6",
   "description": "Koii SDK",
   "main": "./node/node.js",
   "browser": "./web/web.js",
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/koii-network/tools",
   "dependencies": {
-    "@_koi/kohaku": "^1.0.10",
+    "@_koi/kohaku": "^1.0.11",
     "arweave": "^1.10.13",
     "axios": "^0.21.1",
     "dotenv": "^9.0.2",
