@@ -462,7 +462,7 @@ export class Common {
    * @returns Arweave transaction ID
    */
   transferNft(nftId: string, qty: number, target: string): Promise<string> {
-    this.assertTxId(nftId);
+    this.assertArId(nftId);
     if (!Number.isInteger(qty) || qty < 1)
       throw new Error("qty must be a positive integer");
     if (typeof target !== "string") throw new Error("target must be a string");
@@ -476,13 +476,21 @@ export class Common {
   }
 
   /**
-   * Throws an error if a txId is invalid
-   *  TODO: check if txId is base64url compatible (only alphanumeric including -_ )
-   * @param txId The Arweave Transaction ID to assert.
+   * Checks the validity of an Ar (transaction, address) ID
+   *  TODO: check if arId is base64url compatible (only alphanumeric including -_ )
+   * @param arId The Arweave ID to validate
+   * @returns Validity of txId
    */
-  assertTxId(txId: unknown): void {
-    if (typeof txId !== "string" || txId.length !== 43)
-      throw new Error("Invalid txId");
+  validArId(arId: any): boolean {
+    return typeof arId === "string" && arId.length === 43;
+  }
+
+  /**
+   * Throws an error if a Ar ID is invalid
+   * @param arId The Arweave ID to assert
+   */
+  assertArId(arId: unknown): void {
+    if (!this.validArId(arId)) throw new Error("Invalid arId");
   }
 
   /**
@@ -497,7 +505,7 @@ export class Common {
     contentType: string,
     contentTxId: string
   ): Promise<string> {
-    this.assertTxId(contractId);
+    this.assertArId(contractId);
     const input = {
       function: "burnKoi",
       contractId,
@@ -513,7 +521,7 @@ export class Common {
    * @returns Arweave transaction ID
    */
   migrate(contractId: string): Promise<string> {
-    this.assertTxId(contractId);
+    this.assertArId(contractId);
     const input = { function: "migratePreRegister" };
     return this.interactWrite(input, contractId);
   }
@@ -524,7 +532,7 @@ export class Common {
    * @returns Arweave transaction ID
    */
   async burnKoiAttention(nftTxId: string): Promise<string> {
-    this.assertTxId(nftTxId);
+    this.assertArId(nftTxId);
     return this.burnKoi(await this.getAttentionId(), "nft", nftTxId);
   }
 
@@ -751,11 +759,14 @@ export class Common {
    */
   async getNftIdsByOwner(owner: string): Promise<string[]> {
     const attentionState = await this.getState("attention");
-    return Object.keys(
-      attentionState.nfts.filter((nft: unknown) =>
-        Object.prototype.hasOwnProperty.call(nft, owner)
+    const nftIds = [];
+    for (const nftId in attentionState.nfts) {
+      if (
+        Object.prototype.hasOwnProperty.call(attentionState.nfts[nftId], owner)
       )
-    );
+        nftIds.push(nftId);
+    }
+    return nftIds;
   }
 
   /**
