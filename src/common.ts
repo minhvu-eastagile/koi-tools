@@ -540,7 +540,7 @@ export class Common {
     contractId = contractId || (await this.getAttentionId());
     this.assertArId(contractId);
     if (typeof txId === "string") this.assertArId(txId);
-    else txId.map(this.assertArId);
+    else txId.forEach(this.assertArId);
     const input = { function: "syncOwnership", txId };
     return this.interactWrite(input, contractId);
   }
