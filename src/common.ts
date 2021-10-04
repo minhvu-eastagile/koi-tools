@@ -517,12 +517,31 @@ export class Common {
 
   /**
    * Call migration function in a contract
-   * @param contractId Contract ID to migrate content to
+   * @param contractId Contract ID to migrate content to, defaults to attention contract
    * @returns Arweave transaction ID
    */
-  migrate(contractId: string): Promise<string> {
+  async migrate(contractId?: string): Promise<string> {
+    contractId = contractId || (await this.getAttentionId());
     this.assertArId(contractId);
     const input = { function: "migratePreRegister" };
+    return this.interactWrite(input, contractId);
+  }
+
+  /**
+   * Call syncOwnership function on attention contract
+   * @param txId NFT id to be synchronized, can be an array if caller == attention contract owner
+   * @param contractId Contract to call syncOwnership on, defaults to attention contract
+   * @returns Arweave transaction ID
+   */
+  async syncOwnership(
+    txId: string | string[],
+    contractId?: string
+  ): Promise<string> {
+    contractId = contractId || (await this.getAttentionId());
+    this.assertArId(contractId);
+    if (typeof txId === "string") this.assertArId(txId);
+    else txId.map(this.assertArId);
+    const input = { function: "syncOwnership", txId };
     return this.interactWrite(input, contractId);
   }
 
