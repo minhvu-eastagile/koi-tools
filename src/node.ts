@@ -30,8 +30,11 @@ export class Node extends Common {
       // Not in cache
     }
     // If empty, return awaitable promise
-    if (!cached) return kohaku.readContract(arweave, txId);
     const now = Date.now();
+    if (!cached) {
+      kohakuNextRead = now + READ_COOLDOWN;
+      return kohaku.readContract(arweave, txId);
+    }
     if (now > kohakuNextRead) {
       kohakuNextRead = now + READ_COOLDOWN;
       // Update cache but don't await
