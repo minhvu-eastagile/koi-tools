@@ -13,7 +13,7 @@ let kohakuNextRead = 0;
 
 export class Node extends Common {
   totalVoted = -1;
-  receipts: Array<any> = [];
+  receipts: Array<unknown> = [];
   redisClient?: RedisClient;
 
   /**
@@ -21,7 +21,7 @@ export class Node extends Common {
    * @param txId Contract whose state to get
    * @returns Latest cached contract state
    */
-  getState(txId: string): Promise<any> | any {
+  getState(txId: string): Promise<unknown> | any {
     if (process.env.NODE_MODE !== "service") return super.getState(txId);
     let cached;
     try {
@@ -30,12 +30,15 @@ export class Node extends Common {
       // Not in cache
     }
     // If empty, return awaitable promise
-    if (!cached) return kohaku.readContract(arweave, txId);
     const now = Date.now();
+    if (!cached) {
+      kohakuNextRead = now + READ_COOLDOWN;
+      return kohaku.readContract(arweave, txId);
+    }
     if (now > kohakuNextRead) {
       kohakuNextRead = now + READ_COOLDOWN;
       // Update cache but don't await
-      kohaku.readContract(arweave, txId).catch((e: any) => {
+      kohaku.readContract(arweave, txId).catch((e: Error) => {
         console.error("Koii SDK error while updating state async:", e.message);
       });
     }
@@ -55,7 +58,7 @@ export class Node extends Common {
   /**
    * @returns Cached Koii contract state
    */
-  getKoiiState(): Promise<any> | any {
+  getKoiiState(): Promise<unknown> | any {
     if (process.env.NODE_MODE !== "service") return super.getKoiiState();
     return this.getState(this.contractId);
   }
@@ -63,14 +66,14 @@ export class Node extends Common {
   /**
    * @returns Koii contract state bypassing cache
    */
-  getKoiiStateAwait(): Promise<any> {
+  getKoiiStateAwait(): Promise<unknown> {
     return this.getStateAwait(this.contractId);
   }
 
   /**
    * Depreciated wrapper for getKoiiState
    */
-  getContractState(): Promise<any> | any {
+  getContractState(): Promise<unknown> | any {
     console.warn("getContractState is depreciated. Use getKoiiState");
     return this.getKoiiState();
   }
@@ -80,7 +83,7 @@ export class Node extends Common {
    * @param file Path of the file to be loaded
    * @returns JSON representation of the object
    */
-  async loadFile(file: string): Promise<any> {
+  async loadFile(file: string): Promise<unknown> {
     const data = await readFile(file, "utf8");
     return JSON.parse(data);
   }
@@ -110,7 +113,7 @@ export class Node extends Common {
    * @param value String to store in redis
    * @returns
    */
-  redisSetAsync(key: any, value: string): Promise<void> {
+  redisSetAsync(key: string, value: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.redisClient === undefined) reject("Redis not connected");
       else
@@ -125,7 +128,7 @@ export class Node extends Common {
    * @param key Redis key of data
    * @returns Data as a string, null if no such key exists
    */
-  redisGetAsync(key: any): Promise<string | null> {
+  redisGetAsync(key: string): Promise<string | null> {
     return new Promise((resolve, reject) => {
       if (this.redisClient === undefined) reject("Redis not connected");
       else

@@ -6,13 +6,13 @@ import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
 import Web3 from "web3";
 import { interactWrite } from "smartweave/lib/contract-interact";
-//@ts-ignore // Needed to allow implicit any here
+//@ts-ignore // Needed to allow implicit unknown here
 import { generateKeyPair, getKeyPairFromMnemonic } from "human-crypto-keys";
 //@ts-ignore
 import { pem2jwk } from "pem-jwk";
 
 export interface BundlerPayload {
-  data?: any;
+  data?: unknown;
   signature?: string; // Data signed with private key
   owner?: string; // Public modulus, can be used to verifiably derive address
   senderAddress?: string; //@deprecated // Use owner instead
@@ -73,7 +73,7 @@ export class Common {
 
   constructor(
     bundlerUrl = "https://mainnet.koii.live",
-    contractId = "qzVAzvhwr1JFTPE8lIU9ZG_fuihOmBr7ewZFcT3lIUc"
+    contractId = "QA7AIFVx1KBBmzC7WUNhJbDsHlSJArUT0jWrhZMZPS8"
   ) {
     this.bundlerUrl = bundlerUrl;
     this.contractId = contractId;
@@ -96,7 +96,7 @@ export class Common {
    * Gets the current contract state
    * @returns Current KOI system state
    */
-  getContractState(): Promise<any> {
+  getContractState(): Promise<unknown> {
     console.warn("getContractState is depreciated, use getKoiiState instead");
     return this.getKoiiState();
   }
@@ -124,7 +124,7 @@ export class Common {
   /**
    * Depreciated wrapper for getNftState
    */
-  contentView(id: string): Promise<any> {
+  contentView(id: string): Promise<unknown> {
     console.warn("contentView is depreciated, use getNftState instead");
     return this.getNftState(id);
   }
@@ -132,7 +132,7 @@ export class Common {
   /**
    * Depreciated wrapper for getNftState
    */
-  readNftState(id: string): Promise<any> {
+  readNftState(id: string): Promise<unknown> {
     console.warn("readNftState is depreciated, use getNftState instead");
     return this.getNftState(id);
   }
@@ -144,7 +144,7 @@ export class Common {
    * @param contractId contractId to be read
    * @returns state of the contract read
    */
-  swReadContract(contractId: string): Promise<any> {
+  swReadContract(contractId: string): Promise<unknown> {
     return smartweave.readContract(arweave, contractId);
   }
 
@@ -179,7 +179,7 @@ export class Common {
    * Loads arweave wallet
    * @param source object to load from, JSON or JWK, or mnemonic key
    */
-  async loadWallet(source: any): Promise<JWKInterface> {
+  async loadWallet(source: unknown): Promise<JWKInterface> {
     switch (typeof source) {
       case "string":
         this.wallet = await this._getKeyFromMnemonic(source);
@@ -236,7 +236,7 @@ export class Common {
    * @param object A transaction object - see web3.eth.sendTransaction for detail
    * @returns The used gas for the simulated call/transaction.
    */
-  async estimateGasEth(object: any): Promise<number> {
+  async estimateGasEth(object: unknown): Promise<number> {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
@@ -260,7 +260,7 @@ export class Common {
     toAddress: string,
     amount: number,
     privateKey: string
-  ): Promise<any> {
+  ): Promise<unknown> {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
@@ -291,7 +291,7 @@ export class Common {
    * @param ethPrivateKey Ethereum Private Key as a string
    * @returns balance in ether
    */
-  signPayloadEth(data: any, ethPrivateKey: string): any {
+  signPayloadEth(data: unknown, ethPrivateKey: string): unknown {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
@@ -304,7 +304,7 @@ export class Common {
    * creates ethereum wallet
    * @returns ethereum wallet
    */
-  createEthWallet(): any {
+  createEthWallet(): unknown {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
@@ -316,7 +316,7 @@ export class Common {
    * @param ethPrivateKey Ethereum Private Key as a string
    * @returns ethereum wallet
    */
-  getEthWalletByPrivateKey(ethPrivateKey: string): any {
+  getEthWalletByPrivateKey(ethPrivateKey: string): unknown {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
@@ -370,7 +370,7 @@ export class Common {
    * Get block height
    * @returns Block height maybe number
    */
-  async getBlockHeight(): Promise<any> {
+  async getBlockHeight(): Promise<unknown> {
     const info = await getArweaveNetInfo();
     return info.data.height;
   }
@@ -462,7 +462,7 @@ export class Common {
    * @returns Arweave transaction ID
    */
   transferNft(nftId: string, qty: number, target: string): Promise<string> {
-    this.assertTxId(nftId);
+    this.assertArId(nftId);
     if (!Number.isInteger(qty) || qty < 1)
       throw new Error("qty must be a positive integer");
     if (typeof target !== "string") throw new Error("target must be a string");
@@ -476,13 +476,21 @@ export class Common {
   }
 
   /**
-   * Throws an error if a txId is invalid
-   *  TODO: check if txId is base64url compatible (only alphanumeric including -_ )
-   * @param txId The Arweave Transaction ID to assert.
+   * Checks the validity of an Ar (transaction, address) ID
+   *  TODO: check if arId is base64url compatible (only alphanumeric including -_ )
+   * @param arId The Arweave ID to validate
+   * @returns Validity of txId
    */
-  assertTxId(txId: any): void {
-    if (typeof txId !== "string" || txId.length !== 43)
-      throw new Error("Invalid txId");
+  validArId(arId: any): boolean {
+    return typeof arId === "string" && arId.length === 43;
+  }
+
+  /**
+   * Throws an error if a Ar ID is invalid
+   * @param arId The Arweave ID to assert
+   */
+  assertArId(arId: unknown): void {
+    if (!this.validArId(arId)) throw new Error("Invalid arId");
   }
 
   /**
@@ -497,7 +505,7 @@ export class Common {
     contentType: string,
     contentTxId: string
   ): Promise<string> {
-    this.assertTxId(contractId);
+    this.assertArId(contractId);
     const input = {
       function: "burnKoi",
       contractId,
@@ -509,12 +517,31 @@ export class Common {
 
   /**
    * Call migration function in a contract
-   * @param contractId Contract ID to migrate content to
+   * @param contractId Contract ID to migrate content to, defaults to attention contract
    * @returns Arweave transaction ID
    */
-  migrate(contractId: string): Promise<string> {
-    this.assertTxId(contractId);
+  async migrate(contractId?: string): Promise<string> {
+    contractId = contractId || (await this.getAttentionId());
+    this.assertArId(contractId);
     const input = { function: "migratePreRegister" };
+    return this.interactWrite(input, contractId);
+  }
+
+  /**
+   * Call syncOwnership function on attention contract
+   * @param txId NFT id to be synchronized, can be an array if caller == attention contract owner
+   * @param contractId Contract to call syncOwnership on, defaults to attention contract
+   * @returns Arweave transaction ID
+   */
+  async syncOwnership(
+    txId: string | string[],
+    contractId?: string
+  ): Promise<string> {
+    contractId = contractId || (await this.getAttentionId());
+    this.assertArId(contractId);
+    if (typeof txId === "string") this.assertArId(txId);
+    else for (const id of txId) this.assertArId(id);
+    const input = { function: "syncOwnership", txId };
     return this.interactWrite(input, contractId);
   }
 
@@ -524,7 +551,7 @@ export class Common {
    * @returns Arweave transaction ID
    */
   async burnKoiAttention(nftTxId: string): Promise<string> {
-    this.assertTxId(nftTxId);
+    this.assertArId(nftTxId);
     return this.burnKoi(await this.getAttentionId(), "nft", nftTxId);
   }
 
@@ -541,7 +568,7 @@ export class Common {
    * @param tx Transaction to be signed
    * @returns signed Transaction
    */
-  async signTransaction(tx: Transaction): Promise<any> {
+  async signTransaction(tx: Transaction): Promise<unknown> {
     try {
       //const wallet = this.wallet;
       // Now we sign the transaction
@@ -603,7 +630,7 @@ export class Common {
    * @param data
    * @returns Transaction ID
    */
-  async postData(data: any): Promise<string | null> {
+  async postData(data: unknown): Promise<string | null> {
     // TODO: define data interface
     const wallet = this.wallet;
     const transaction = await arweave.createTransaction(
@@ -632,7 +659,11 @@ export class Common {
    * @param cursorId Cursor ID after which to query results, from data.transactions.edges[n].cursor
    * @returns Object with transaction IDs as keys, and transaction data strings as values
    */
-  getOwnedTxs(wallet: string, count?: number, cursorId?: string): Promise<any> {
+  getOwnedTxs(
+    wallet: string,
+    count?: number,
+    cursorId?: string
+  ): Promise<unknown> {
     const countStr = count !== undefined ? `, first: ${count}` : "";
     const afterStr = cursorId !== undefined ? `, after: "${cursorId}"` : "";
     const query = `
@@ -656,7 +687,7 @@ export class Common {
     wallet: string,
     count?: number,
     cursorId?: string
-  ): Promise<any> {
+  ): Promise<unknown> {
     const countStr = count !== undefined ? `, first: ${count}` : "";
     const afterStr = cursorId !== undefined ? `, after: "${cursorId}"` : "";
     const query = `
@@ -678,7 +709,7 @@ export class Common {
   async getViewsAndEarnedKOII(
     nftIdArr: any,
     attentionState?: any
-  ): Promise<any> {
+  ): Promise<unknown> {
     attentionState = attentionState || (await this.getState("attention"));
     const attentionReport = attentionState.task.attentionReport;
 
@@ -707,7 +738,7 @@ export class Common {
    */
   async retrieveAllRegisteredContent(): Promise<string[]> {
     const state = await this.getState("attention");
-    return Object.values(state.nfts).flat() as string[];
+    return Object.keys(state.nfts) as string[];
   }
 
   /**
@@ -715,7 +746,7 @@ export class Common {
    * Get the list of NFTs tagged as NSFW
    * @returns {Object} - returns a array of NFTs tagged as NSFW
    */
-  async getNsfwNfts(): Promise<any> {
+  async getNsfwNfts(): Promise<unknown> {
     const query = `
       query {
         transactions(tags: [{
@@ -747,7 +778,14 @@ export class Common {
    */
   async getNftIdsByOwner(owner: string): Promise<string[]> {
     const attentionState = await this.getState("attention");
-    return attentionState.nfts[owner];
+    const nftIds = [];
+    for (const nftId in attentionState.nfts) {
+      if (
+        Object.prototype.hasOwnProperty.call(attentionState.nfts[nftId], owner)
+      )
+        nftIds.push(nftId);
+    }
+    return nftIds;
   }
 
   /**
@@ -779,7 +817,7 @@ export class Common {
   async getNodes(
     url: string = this.bundlerUrl
   ): Promise<Array<BundlerPayload>> {
-    const res: any = await axios.get(url + BUNDLER_NODES);
+    const res = await axios.get(url + BUNDLER_NODES);
     try {
       return JSON.parse(res.data);
     } catch (_e) {
@@ -793,7 +831,7 @@ export class Common {
    * @param cursorId Cursor ID after which to query results, from data.transactions.edges[n].cursor
    * @returns {Array} - returns a Javascript Array of object with each object representing a single KID
    */
-  async getAllKID(count?: number, cursorId?: string): Promise<any> {
+  async getAllKID(count?: number, cursorId?: string): Promise<unknown> {
     const countStr = count !== undefined ? `, first: ${count}` : "";
     const afterStr = cursorId !== undefined ? `, after: "${cursorId}"` : "";
     const query = `
@@ -818,7 +856,7 @@ export class Common {
    * @param walletAddress The wallet address for the person whose DID is to be found
    * @returns {Object} - returns a contract object having id which can be used to get the state
    */
-  async getKIDByWalletAddress(walletAddress?: string): Promise<any> {
+  async getKIDByWalletAddress(walletAddress?: string): Promise<unknown> {
     const query = `
       query {
         transactions(tags: [{
@@ -846,7 +884,7 @@ export class Common {
    * @param image - an object containing contentType and blobData
    * @returns {txId} - returns a txId in case of success and false in case of failure
    */
-  async createKID(KIDObject: any, image: any): Promise<any> {
+  async createKID(KIDObject: any, image: any): Promise<unknown> {
     const initialState = KIDObject;
     if (
       initialState &&
@@ -899,7 +937,7 @@ export class Common {
    * @param contractId - the contract Id for KID to be updated
    * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  async updateKID(KIDObject: any, contractId: string): Promise<any> {
+  async updateKID(KIDObject: any, contractId: string): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
     const txId = await interactWrite(arweave, wallet, contractId, {
@@ -914,7 +952,7 @@ export class Common {
    * @param collectionObject - an object containing name, description, addresses and link
    * @returns {txId} - returns a txId in case of success and false in case of failure
    */
-  async createCollection(collectionObject: any): Promise<any> {
+  async createCollection(collectionObject: any): Promise<unknown> {
     const initialState = collectionObject;
     if (!collectionObject.owner) {
       console.log("collectionObject doesn't contain an owner");
@@ -963,7 +1001,7 @@ export class Common {
     walletAddress?: string,
     count?: number,
     cursorId?: string
-  ): Promise<any> {
+  ): Promise<unknown> {
     const countStr = count !== undefined ? `, first: ${count}` : "";
     const afterStr = cursorId !== undefined ? `, after: "${cursorId}"` : "";
     const query = `
@@ -994,7 +1032,7 @@ export class Common {
    * @param contractId - the contract Id for Collection to be updated
    * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  addToCollection(nftId: string, contractId: string): Promise<any> {
+  addToCollection(nftId: string, contractId: string): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
     return interactWrite(arweave, wallet, contractId, {
@@ -1009,7 +1047,7 @@ export class Common {
    * @param contractId - the contract Id for Collection to be updated
    * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  removeFromCollection(index: number, contractId: string): Promise<any> {
+  removeFromCollection(index: number, contractId: string): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
     return interactWrite(arweave, wallet, contractId, {
@@ -1024,7 +1062,7 @@ export class Common {
    * @param contractId - the contract Id for Collection to be updated
    * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  updateView(newView: string, contractId: string): Promise<any> {
+  updateView(newView: string, contractId: string): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
     return interactWrite(arweave, wallet, contractId, {
@@ -1042,7 +1080,7 @@ export class Common {
   updatePreviewImageIndex(
     imageIndex: number,
     contractId: string
-  ): Promise<any> {
+  ): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
     return interactWrite(arweave, wallet, contractId, {
@@ -1057,7 +1095,7 @@ export class Common {
    * @param contractId - the contract Id for Collection to be updated
    * @returns {txId} - returns a transaction id of arweave for the updateKID
    */
-  updateCollection(collection: any, contractId: string): Promise<any> {
+  updateCollection(collection: unknown, contractId: string): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
     return interactWrite(arweave, wallet, contractId, {
@@ -1072,7 +1110,7 @@ export class Common {
    * @param contractId Contract to write to, defaults to Koii contract
    * @returns Transaction ID
    */
-  interactWrite(input: any, contractId = this.contractId): Promise<string> {
+  interactWrite(input: unknown, contractId = this.contractId): Promise<string> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
     return interactWrite(arweave, wallet, contractId, input);
   }
