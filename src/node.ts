@@ -10,6 +10,11 @@ import kohaku from "@_koi/kohaku";
 export const URL_GATEWAY_LOGS = "https://gatewayv2.koi.rocks/logs";
 const READ_COOLDOWN = 60000;
 let kohakuNextRead = 0;
+interface redisConfig {
+  redis_ip?: string;
+  redis_port?: number;
+  redis_password?: string;
+}
 
 export class Node extends Common {
   totalVoted = -1;
@@ -91,14 +96,17 @@ export class Node extends Common {
   /**
    * Loads redis client
    */
-  loadRedisClient(): void {
-    if (!process.env.REDIS_IP || !process.env.REDIS_PORT) {
+  loadRedisClient(config: redisConfig): void {
+    if (
+      ((!process.env.REDIS_IP || !process.env.REDIS_PORT) &&
+        !config.redis_ip) || !config.redis_port
+    ) {
       throw Error("CANNOT READ REDIS IP OR PORT FROM ENV");
     } else {
       this.redisClient = redis.createClient({
-        host: process.env.REDIS_IP,
-        port: parseInt(process.env.REDIS_PORT),
-        password: process.env.REDIS_PASSWORD
+        host: process.env.REDIS_IP || config.redis_ip,
+        port: parseInt(process.env.REDIS_PORT as string) || config.redis_port,
+        password: process.env.REDIS_PASSWORD || config.redis_password
       });
 
       this.redisClient.on("error", function (error) {
