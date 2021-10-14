@@ -153,7 +153,7 @@ export class Common {
    * @returns Attention contract ID running on the bundler as a string
    */
   async getAttentionId(): Promise<string> {
-    return (await axios.get(this.bundlerUrl + "/attention/id")).data;
+    return (await axios.get(this.bundlerUrl + "/attention/id")).data as string;
   }
 
   /**
@@ -819,7 +819,7 @@ export class Common {
   ): Promise<Array<BundlerPayload>> {
     const res = await axios.get(url + BUNDLER_NODES);
     try {
-      return JSON.parse(res.data);
+      return JSON.parse(res.data as string);
     } catch (_e) {
       return [];
     }
