@@ -96,23 +96,20 @@ export class Node extends Common {
   /**
    * Loads redis client
    */
-  loadRedisClient(config: redisConfig): void {
-    if (
-      ((!process.env.REDIS_IP || !process.env.REDIS_PORT) &&
-        !config.redis_ip) || !config.redis_port
-    ) {
+  loadRedisClient(config?: redisConfig): void {
+    const host = (config && config.redis_ip) ?
+      config.redis_ip : process.env.REDIS_IP;
+    const port = (config && config.redis_port) ?
+      config.redis_port : parseInt(process.env.REDIS_PORT as string);
+    const password = (config && config.redis_password) ?
+      config.redis_password : process.env.REDIS_PASSWORD;
+    if (!host || !port)
       throw Error("CANNOT READ REDIS IP OR PORT FROM ENV");
-    } else {
-      this.redisClient = redis.createClient({
-        host: process.env.REDIS_IP || config.redis_ip,
-        port: parseInt(process.env.REDIS_PORT as string) || config.redis_port,
-        password: process.env.REDIS_PASSWORD || config.redis_password
-      });
-
-      this.redisClient.on("error", function (error) {
-        console.error("redisClient " + error);
-      });
-    }
+    
+    this.redisClient = redis.createClient({ port, host, password });
+    this.redisClient.on("error", function (error) {
+      console.error("redisClient " + error);
+    });
   }
 
   /**
