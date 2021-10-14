@@ -115,6 +115,7 @@ test("Get Views And Earned KOII", async () => {
 });
 
 test("Get attentionId", async () => {
+  jest.setTimeout(60000);
   const attentionId = await ktools.getAttentionId();
   expect(typeof attentionId).toEqual("string");
   expect(attentionId.length).toEqual(43);
