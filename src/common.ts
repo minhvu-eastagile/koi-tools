@@ -327,6 +327,30 @@ export class Common {
     return wallet;
   }
   /**
+   * Gets all transactions for a particular ethereum wallet
+   * @param etherscanAPIKey etherscanAPIKey to fetch the txs
+   * @param network Specifies the network of txs to be fetched - Defaults to RINKEBY (RINKEBY or MAINNET)
+   * @param offset Number of transactions to return - Defaults to 50
+   * @param walletAddress optional param, to fetch txs of other wallet address than the loaded one
+   * @returns ethereum wallet
+   */
+   async getAllEthTransactions(etherscanAPIKey: string, network="RINKEBY", offset=50,walletAddress: string): Promise<unknown> {
+    if (!this.web3) {
+      throw Error("Ethereum Wallet and Network not initialized");
+    }
+    if (!etherscanAPIKey) {
+      throw Error("etherscanAPIKey not provided");
+    }
+    if (!walletAddress) walletAddress = this.ethWalletAddress || ""
+    try {
+      let resp: any = await axios.get(`https://api${network=="RINKEBY"?"-rinkeby":""}.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${etherscanAPIKey}`)
+      return (resp.data && resp.data.result) || []
+    } catch (e) {
+      console.error(e)
+      return []
+    }
+  }
+  /**
    * Uses koi wallet to get the address
    * @returns Wallet address
    */
