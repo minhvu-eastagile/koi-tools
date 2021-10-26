@@ -334,20 +334,29 @@ export class Common {
    * @param walletAddress optional param, to fetch txs of other wallet address than the loaded one
    * @returns ethereum wallet
    */
-   async getAllEthTransactions(etherscanAPIKey: string, network="RINKEBY", offset=50,walletAddress: string): Promise<unknown> {
+  async getAllEthTransactions(
+    etherscanAPIKey: string,
+    network = "RINKEBY",
+    offset = 50,
+    walletAddress: string
+  ): Promise<unknown> {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
     if (!etherscanAPIKey) {
       throw Error("etherscanAPIKey not provided");
     }
-    if (!walletAddress) walletAddress = this.ethWalletAddress || ""
+    if (!walletAddress) walletAddress = this.ethWalletAddress || "";
     try {
-      let resp: any = await axios.get(`https://api${network=="RINKEBY"?"-rinkeby":""}.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${etherscanAPIKey}`)
-      return (resp.data && resp.data.result) || []
+      let resp: any = await axios.get(
+        `https://api${
+          network == "RINKEBY" ? "-rinkeby" : ""
+        }.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${etherscanAPIKey}`
+      );
+      return (resp.data && resp.data.result) || [];
     } catch (e) {
-      console.error(e)
-      return []
+      console.error(e);
+      return [];
     }
   }
   /**
@@ -1132,11 +1141,25 @@ export class Common {
    * Writes to contract
    * @param input Passes to write function, in order to execute a contract function
    * @param contractId Contract to write to, defaults to Koii contract
+   *  @param reward Custom reward for txs, if needed.
    * @returns Transaction ID
    */
-  interactWrite(input: unknown, contractId = this.contractId): Promise<string> {
+  interactWrite(
+    input: unknown,
+    contractId = this.contractId,
+    reward?: string
+  ): Promise<string> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
-    return interactWrite(arweave, wallet, contractId, input);
+    return interactWrite(
+      arweave,
+      wallet,
+      contractId,
+      input,
+      undefined,
+      undefined,
+      undefined,
+      reward
+    );
   }
 
   // Private functions
