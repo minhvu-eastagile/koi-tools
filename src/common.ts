@@ -539,7 +539,7 @@ export class Common {
   burnKoi(
     contractId: string,
     contentType: string,
-    contentTxId: string, 
+    contentTxId: string,
     reward?: string
   ): Promise<string> {
     this.assertArId(contractId);
@@ -574,7 +574,7 @@ export class Common {
    */
   async syncOwnership(
     txId: string | string[],
-    contractId?: string, 
+    contractId?: string,
     reward?: string
   ): Promise<string> {
     contractId = contractId || (await this.getAttentionId());
