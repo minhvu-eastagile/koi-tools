@@ -334,20 +334,28 @@ export class Common {
    * @param walletAddress optional param, to fetch txs of other wallet address than the loaded one
    * @returns ethereum wallet
    */
-   async getAllEthTransactions(etherscanAPIKey: string, network="RINKEBY", offset=50,walletAddress: string): Promise<unknown> {
+  async getAllEthTransactions(
+    etherscanAPIKey: string,
+    network = "RINKEBY",
+    offset = 50,
+    walletAddress: string
+  ): Promise<unknown> {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
     if (!etherscanAPIKey) {
       throw Error("etherscanAPIKey not provided");
     }
-    if (!walletAddress) walletAddress = this.ethWalletAddress || ""
+    if (!walletAddress) walletAddress = this.ethWalletAddress || "";
     try {
-      let resp: any = await axios.get(`https://api${network=="RINKEBY"?"-rinkeby":""}.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${etherscanAPIKey}`)
-      return (resp.data && resp.data.result) || []
+      let resp: any = await axios.get(
+        `https://api${network == "RINKEBY" ? "-rinkeby" : ""
+        }.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${etherscanAPIKey}`
+      );
+      return (resp.data && resp.data.result) || [];
     } catch (e) {
-      console.error(e)
-      return []
+      console.error(e);
+      return [];
     }
   }
   /**
@@ -435,9 +443,10 @@ export class Common {
    * Interact with contract to transfer koi
    * @param qty Quantity to transfer
    * @param target Receiver address
+   * @param reward Custom reward for smartweave transaction
    * @returns Transaction ID
    */
-  async transfer(qty: number, target: string, token: string): Promise<string> {
+  async transfer(qty: number, target: string, token: string, reward?: string): Promise<string> {
     const input = {
       function: "transfer",
       qty: qty,
@@ -454,7 +463,7 @@ export class Common {
         return transaction.id;
       }
       case "KOI": {
-        const txid = await this.interactWrite(input);
+        const txid = await this.interactWrite(input, this.contractId, reward);
         return txid;
       }
 
@@ -467,15 +476,16 @@ export class Common {
   /**
    * Mint koi
    * @param arg object arg.targetAddress(receiver address) and arg.qty(amount to mint)
+   * @param reward Custom reward for smartweave transaction
    * @returns Transaction ID
    */
-  mint(arg: any): Promise<string> {
+  mint(arg: any, reward?: string): Promise<string> {
     const input = {
       function: "mint",
       qty: arg.qty,
       target: arg.targetAddress
     };
-    return this.interactWrite(input);
+    return this.interactWrite(input, this.contractId, reward);
   }
 
   /**
@@ -483,9 +493,10 @@ export class Common {
    * @param nftId NFT ID to transfer
    * @param qty Quantity of NFT balance to transfer
    * @param target Target address to transfer ownership to
+   * @param reward Custom reward for smartweave transaction
    * @returns Arweave transaction ID
    */
-  transferNft(nftId: string, qty: number, target: string): Promise<string> {
+  transferNft(nftId: string, qty: number, target: string, reward?: string): Promise<string> {
     this.assertArId(nftId);
     if (!Number.isInteger(qty) || qty < 1)
       throw new Error("qty must be a positive integer");
@@ -496,7 +507,7 @@ export class Common {
       qty,
       target
     };
-    return this.interactWrite(input, nftId);
+    return this.interactWrite(input, nftId, reward);
   }
 
   /**
@@ -522,12 +533,14 @@ export class Common {
    * @param contractId Contract ID to preregister to, content will be migrated to this contract
    * @param contentType Description field to be interpreted by the migration contract
    * @param contentTxId Content TxID of the contract for preregistration
+   * @param reward Custom reward for smartweave transaction
    * @returns Transaction ID
    */
   burnKoi(
     contractId: string,
     contentType: string,
-    contentTxId: string
+    contentTxId: string,
+    reward?: string
   ): Promise<string> {
     this.assertArId(contractId);
     const input = {
@@ -536,55 +549,60 @@ export class Common {
       contentType,
       contentTxId
     };
-    return this.interactWrite(input);
+    return this.interactWrite(input, this.contractId, reward);
   }
 
   /**
    * Call migration function in a contract
    * @param contractId Contract ID to migrate content to, defaults to attention contract
+   * @param reward Custom reward for smartweave transaction
    * @returns Arweave transaction ID
    */
-  async migrate(contractId?: string): Promise<string> {
+  async migrate(contractId?: string, reward?: string): Promise<string> {
     contractId = contractId || (await this.getAttentionId());
     this.assertArId(contractId);
     const input = { function: "migratePreRegister" };
-    return this.interactWrite(input, contractId);
+    return this.interactWrite(input, contractId, reward);
   }
 
   /**
    * Call syncOwnership function on attention contract
    * @param txId NFT id to be synchronized, can be an array if caller == attention contract owner
    * @param contractId Contract to call syncOwnership on, defaults to attention contract
+   * @param reward Custom reward for smartweave transaction
    * @returns Arweave transaction ID
    */
   async syncOwnership(
     txId: string | string[],
-    contractId?: string
+    contractId?: string,
+    reward?: string
   ): Promise<string> {
     contractId = contractId || (await this.getAttentionId());
     this.assertArId(contractId);
     if (typeof txId === "string") this.assertArId(txId);
     else for (const id of txId) this.assertArId(id);
     const input = { function: "syncOwnership", txId };
-    return this.interactWrite(input, contractId);
+    return this.interactWrite(input, contractId, reward);
   }
 
   /**
    * Simple wrapper for burnKoi for the attention contract
    * @param nftTxId ID of the NFT to be preregistered
+   * @param reward Custom reward for smartweave transaction
    * @returns Arweave transaction ID
    */
-  async burnKoiAttention(nftTxId: string): Promise<string> {
+  async burnKoiAttention(nftTxId: string, reward?: string): Promise<string> {
     this.assertArId(nftTxId);
-    return this.burnKoi(await this.getAttentionId(), "nft", nftTxId);
+    return this.burnKoi(await this.getAttentionId(), "nft", nftTxId, reward);
   }
 
   /**
    * Simple wrapper for migrate for the attention contract
+   * @param reward Custom reward for smartweave transaction
    * @returns Arweave transaction ID
    */
-  async migrateAttention(): Promise<string> {
-    return this.migrate(await this.getAttentionId());
+  async migrateAttention(reward?: string): Promise<string> {
+    return this.migrate(await this.getAttentionId(), reward);
   }
 
   /**
@@ -1132,11 +1150,25 @@ export class Common {
    * Writes to contract
    * @param input Passes to write function, in order to execute a contract function
    * @param contractId Contract to write to, defaults to Koii contract
+   *  @param reward Custom reward for txs, if needed.
    * @returns Transaction ID
    */
-  interactWrite(input: unknown, contractId = this.contractId): Promise<string> {
+  interactWrite(
+    input: unknown,
+    contractId = this.contractId,
+    reward?: string
+  ): Promise<string> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
-    return interactWrite(arweave, wallet, contractId, input);
+    return interactWrite(
+      arweave,
+      wallet,
+      contractId,
+      input,
+      undefined,
+      undefined,
+      undefined,
+      reward
+    );
   }
 
   // Private functions
