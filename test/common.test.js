@@ -62,11 +62,11 @@ test("Arweave GQL", async () => {
   expect(res).toBeTruthy();
 });
 
-test("Get owned transactions", async () => {
-  jest.setTimeout(15000);
-  const transactions = await ktools.getOwnedTxs("ou-OUmrWuT0hnSiUMoyhGEbd3s5b_ce8QK0vhNwmno4", 2);
-  expect(transactions.data.transactions.edges.length).toBe(2);
-});
+// test("Get owned transactions", async () => {
+//   jest.setTimeout(15000);
+//   const transactions = await ktools.getOwnedTxs("ou-OUmrWuT0hnSiUMoyhGEbd3s5b_ce8QK0vhNwmno4", 2);
+//   expect(transactions.data.transactions.edges.length).toBe(2);
+// });
 
 test("Get recipient transactions", async () => {
   jest.setTimeout(15000);
