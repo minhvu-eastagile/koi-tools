@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { Common, arweave } from "./common";
+import { Common } from "./common";
 import { readFile } from "fs/promises";
 import redis, { RedisClient } from "redis";
 //@ts-ignore
@@ -38,12 +38,12 @@ export class Node extends Common {
     const now = Date.now();
     if (!cached) {
       kohakuNextRead = now + READ_COOLDOWN;
-      return kohaku.readContract(arweave, txId);
+      return kohaku.readContract(this.arweave, txId);
     }
     if (now > kohakuNextRead) {
       kohakuNextRead = now + READ_COOLDOWN;
       // Update cache but don't await
-      kohaku.readContract(arweave, txId).catch((e: Error) => {
+      kohaku.readContract(this.arweave, txId).catch((e: Error) => {
         console.error("Koii SDK error while updating state async:", e.message);
       });
     }
@@ -57,7 +57,7 @@ export class Node extends Common {
    */
   getStateAwait(txId: string): any {
     kohakuNextRead += Date.now() + READ_COOLDOWN;
-    return kohaku.readContract(arweave, txId);
+    return kohaku.readContract(this.arweave, txId);
   }
 
   /**
@@ -105,7 +105,7 @@ export class Node extends Common {
       config.redis_password : process.env.REDIS_PASSWORD;
     if (!host || !port)
       throw Error("CANNOT READ REDIS IP OR PORT FROM ENV");
-    
+
     this.redisClient = redis.createClient({ port, host, password });
     this.redisClient.on("error", function (error) {
       console.error("redisClient " + error);

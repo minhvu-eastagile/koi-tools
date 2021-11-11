@@ -22,6 +22,9 @@
     "url": "https://github.com/koii-network/tools/issues"
   },
   "homepage": "https://github.com/koii-network/tools",
+  "jest": {
+    "testTimeout": 60000
+  },
   "dependencies": {
     "@_koi/kohaku": "^1.1.1",
     "arweave": "^1.10.18",
