@@ -61,11 +61,13 @@ export class Common {
   web3?: any;
   ethWalletAddress?: string;
   arweave: Arweave;
+  arweaveRateLimit: number;
 
   constructor(
     bundlerUrl = "https://mainnet.koii.live",
     contractId = "QA7AIFVx1KBBmzC7WUNhJbDsHlSJArUT0jWrhZMZPS8",
-    arweave?: Arweave
+    arweave?: Arweave,
+    arweaveRateLimit = 60000
   ) {
     this.bundlerUrl = bundlerUrl;
     this.contractId = contractId;
@@ -75,6 +77,7 @@ export class Common {
       port: 443,
       logging: false
     });
+    this.arweaveRateLimit = arweaveRateLimit
     console.log(
       "Initialized Koii Tools for true ownership and direct communication using version",
       this.contractId

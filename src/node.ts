@@ -7,8 +7,6 @@ import redis, { RedisClient } from "redis";
 //@ts-ignore
 import kohaku from "@_koi/kohaku";
 
-export const URL_GATEWAY_LOGS = "https://gatewayv2.koi.rocks/logs";
-const READ_COOLDOWN = 60000;
 let kohakuNextRead = 0;
 interface redisConfig {
   redis_ip?: string;
@@ -37,11 +35,11 @@ export class Node extends Common {
     // If empty, return awaitable promise
     const now = Date.now();
     if (!cached) {
-      kohakuNextRead = now + READ_COOLDOWN;
+      kohakuNextRead = now + this.arweaveRateLimit;
       return kohaku.readContract(this.arweave, txId);
     }
     if (now > kohakuNextRead) {
-      kohakuNextRead = now + READ_COOLDOWN;
+      kohakuNextRead = now + this.arweaveRateLimit;
       // Update cache but don't await
       kohaku.readContract(this.arweave, txId).catch((e: Error) => {
         console.error("Koii SDK error while updating state async:", e.message);
@@ -56,7 +54,7 @@ export class Node extends Common {
    * @returns Latest contract state
    */
   getStateAwait(txId: string): any {
-    kohakuNextRead += Date.now() + READ_COOLDOWN;
+    kohakuNextRead += Date.now() + this.arweaveRateLimit;
     return kohaku.readContract(this.arweave, txId);
   }
 
@@ -144,4 +142,4 @@ export class Node extends Common {
   }
 }
 
-module.exports = { Node, URL_GATEWAY_LOGS };
+module.exports = { Node };
