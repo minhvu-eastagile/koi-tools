@@ -362,7 +362,7 @@ export class Common {
       try {
         let resp: any = await axios.get(
           `https://api${network == "RINKEBY" ? "-rinkeby" : ""
-          }.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${etherscanAPIKey}`
+          }.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${APIKey}`
         );
         return (resp.data && resp.data.result) || [];
       } catch (e) {
