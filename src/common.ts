@@ -329,7 +329,7 @@ export class Common {
   /**
    * Gets all transactions for a particular EVM compatible wallet
    * @param APIKey APIKey to fetch the txs
-   * @param network Specifies the network of txs to be fetched - Defaults to RINKEBY (RINKEBY or MAINNET or POLYGON)
+   * @param network Specifies the network of txs to be fetched - Defaults to RINKEBY (RINKEBY, MAINNET, POLYGON or MUMBAI)
    * @param offset Number of transactions to return - Defaults to 50
    * @param walletAddress optional param, to fetch txs of other wallet address than the loaded one
    * @returns EVM compatible wallet
@@ -347,11 +347,12 @@ export class Common {
       throw Error("APIKey not provided");
     }
     if (!walletAddress) walletAddress = this.evmWalletAddress || "";
-    if (network == "POLYGON") {
+    if (network == "POLYGON" || network == "MUMBAI") {
       try {
-        
-        let resp: any = await axios.get(
-          `https://api.polygonscan.com/api?module=account&action=txlist&address=${walletAddress}&startblock=1&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${APIKey}`
+        const resp: any = await axios.get(
+          `https://api${
+            network == "MUMBAI" ? "-testnet" : ""
+          }.polygonscan.com/api?module=account&action=txlist&address=${walletAddress}&startblock=1&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${APIKey}`
         );
         return (resp.data && resp.data.result) || [];
       } catch (e) {
@@ -360,7 +361,7 @@ export class Common {
       }
     } else {
       try {
-        let resp: any = await axios.get(
+        const resp: any = await axios.get(
           `https://api${network == "RINKEBY" ? "-rinkeby" : ""
           }.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${APIKey}`
         );
