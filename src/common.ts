@@ -208,7 +208,7 @@ export class Common {
    * @param evmNetworkProvider EVM compatible Network Provider URL (For example https://mainnet.infura.io/v3/xxxxxxxxxxxxxxxxx in case of ethereum mainnet)
    * @returns Wallet address
    */
-  initializeEthWalletAndProvider(
+  initializeEvmWalletAndProvider(
     walletAddress: string,
     evmNetworkProvider: string
   ): string {
@@ -225,7 +225,7 @@ export class Common {
    */
   async getEvmWalletBalance(): Promise<string> {
     if (!this.web3) {
-      throw Error("Ethereum Wallet and Network not initialized");
+      throw Error("EVM compatible Wallet and Network not initialized");
     }
     const balance = await this.web3.eth.getBalance(this.evmWalletAddress);
     return this.web3.utils.fromWei(balance, "ether");
@@ -238,10 +238,10 @@ export class Common {
    */
   async estimateGasEvm(object: unknown): Promise<number> {
     if (!this.web3) {
-      throw Error("Ethereum Wallet and Network not initialized");
+      throw Error("EVM compatible Wallet and Network not initialized");
     }
     if (!object) {
-      throw Error("Ethereum private key not provided");
+      throw Error("EVM compatible private key not provided");
     }
     const gasPrice = await this.web3.eth.getGasPrice();
     const estimateGas = await this.web3.eth.estimateGas(object);
@@ -262,10 +262,10 @@ export class Common {
     privateKey: string
   ): Promise<unknown> {
     if (!this.web3) {
-      throw Error("Ethereum Wallet and Network not initialized");
+      throw Error("EVM compatible Wallet and Network not initialized");
     }
     if (!this.evmWalletAddress) {
-      throw Error("Ethereum Wallet Address is not set");
+      throw Error("EVM compatible Wallet Address is not set");
     }
     const amountToSend = this.web3.utils.toWei(amount.toString(), "ether"); // Convert to wei value
 
@@ -293,70 +293,82 @@ export class Common {
    */
   signPayloadEvm(data: unknown, evmPrivateKey: string): unknown {
     if (!this.web3) {
-      throw Error("Ethereum Wallet and Network not initialized");
+      throw Error("EVM compatible Wallet and Network not initialized");
     }
     if (!evmPrivateKey) {
-      throw Error("Ethereum private key not provided");
+      throw Error("EVM compatible private key not provided");
     }
     return this.web3.eth.accounts.sign(data, evmPrivateKey);
   }
   /**
-   * creates ethereum wallet
-   * @returns ethereum wallet
+   * creates EVM compatible wallet
+   * @returns EVM compatible wallet
    */
   createEvmWallet(): unknown {
     if (!this.web3) {
-      throw Error("Ethereum Wallet and Network not initialized");
+      throw Error("EVM compatible Wallet and Network not initialized");
     }
     const wallet = this.web3.eth.accounts.create(this.web3.utils.randomHex(32));
     return wallet;
   }
   /**
-   * creates ethereum wallet
-   * @param ethPrivateKey Ethereum Private Key as a string
-   * @returns ethereum wallet
+   * creates EVM compatible wallet
+   * @param evmPrivateKey EVM compatible Private Key as a string
+   * @returns EVM compatible wallet
    */
-  getEvmWalletByPrivateKey(ethPrivateKey: string): unknown {
+  getEvmWalletByPrivateKey(evmPrivateKey: string): unknown {
     if (!this.web3) {
-      throw Error("Ethereum Wallet and Network not initialized");
+      throw Error("EVM compatible Wallet and Network not initialized");
     }
-    if (!ethPrivateKey) {
-      throw Error("Ethereum private key not provided");
+    if (!evmPrivateKey) {
+      throw Error("EVM compatible private key not provided");
     }
-    const wallet = this.web3.eth.accounts.privateKeyToAccount(ethPrivateKey);
+    const wallet = this.web3.eth.accounts.privateKeyToAccount(evmPrivateKey);
     return wallet;
   }
   /**
-   * Gets all transactions for a particular ethereum wallet
-   * @param etherscanAPIKey etherscanAPIKey to fetch the txs
-   * @param network Specifies the network of txs to be fetched - Defaults to RINKEBY (RINKEBY or MAINNET)
+   * Gets all transactions for a particular EVM compatible wallet
+   * @param APIKey APIKey to fetch the txs
+   * @param network Specifies the network of txs to be fetched - Defaults to RINKEBY (RINKEBY or MAINNET or POLYGON)
    * @param offset Number of transactions to return - Defaults to 50
    * @param walletAddress optional param, to fetch txs of other wallet address than the loaded one
-   * @returns ethereum wallet
+   * @returns EVM compatible wallet
    */
   async getAllEthTransactions(
-    etherscanAPIKey: string,
+    APIKey: string,
     network = "RINKEBY",
     offset = 50,
     walletAddress: string
   ): Promise<unknown> {
     if (!this.web3) {
-      throw Error("Ethereum Wallet and Network not initialized");
+      throw Error("EVM compatible Wallet and Network not initialized");
     }
-    if (!etherscanAPIKey) {
-      throw Error("etherscanAPIKey not provided");
+    if (!APIKey) {
+      throw Error("APIKey not provided");
     }
-    if (!walletAddress) walletAddress = this.ethWalletAddress || "";
-    try {
-      let resp: any = await axios.get(
-        `https://api${
-          network == "RINKEBY" ? "-rinkeby" : ""
-        }.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${etherscanAPIKey}`
-      );
-      return (resp.data && resp.data.result) || [];
-    } catch (e) {
-      console.error(e);
-      return [];
+    if (!walletAddress) walletAddress = this.evmWalletAddress || "";
+    if (network == "POLYGON") {
+      try {
+        
+        let resp: any = await axios.get(
+          `https://api.polygonscan.com/api?module=account&action=txlist&address=${walletAddress}&startblock=1&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${APIKey}`
+        );
+        return (resp.data && resp.data.result) || [];
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
+    } else {
+      try {
+        let resp: any = await axios.get(
+          `https://api${network == "RINKEBY" ? "-rinkeby" : ""
+          }.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${etherscanAPIKey}`
+        );
+        return (resp.data && resp.data.result) || [];
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
     }
   }
   /**
