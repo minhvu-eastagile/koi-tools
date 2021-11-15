@@ -334,7 +334,7 @@ export class Common {
    * @param walletAddress optional param, to fetch txs of other wallet address than the loaded one
    * @returns EVM compatible wallet
    */
-  async getAllEthTransactions(
+  async getAllEvmTransactions(
     APIKey: string,
     network = "RINKEBY",
     offset = 50,
