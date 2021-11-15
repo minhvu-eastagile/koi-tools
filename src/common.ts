@@ -69,7 +69,7 @@ export class Common {
   contractId: string;
   bundlerUrl: string;
   web3?: any;
-  ethWalletAddress?: string;
+  evmWalletAddress?: string;
 
   constructor(
     bundlerUrl = "https://mainnet.koii.live",
@@ -203,31 +203,31 @@ export class Common {
   }
 
   /**
-   * Manually set ethereum wallet address
-   * @param walletAddress Ethereum Address as a string
-   * @param ethNetworkProvider Ethereum Network Provider URL (For example https://mainnet.infura.io/v3/xxxxxxxxxxxxxxxxx in case of mainnet)
+   * Manually set any EVM compatible wallet address
+   * @param walletAddress EVM compatible Address as a string
+   * @param evmNetworkProvider EVM compatible Network Provider URL (For example https://mainnet.infura.io/v3/xxxxxxxxxxxxxxxxx in case of ethereum mainnet)
    * @returns Wallet address
    */
   initializeEthWalletAndProvider(
     walletAddress: string,
-    ethNetworkProvider: string
+    evmNetworkProvider: string
   ): string {
-    if (!this.ethWalletAddress) this.ethWalletAddress = walletAddress;
-    if (!ethNetworkProvider)
-      throw Error("Ethereum Network Provider not provided in parameter");
-    this.web3 = new Web3(ethNetworkProvider);
-    return this.ethWalletAddress;
+    if (!this.evmWalletAddress) this.evmWalletAddress = walletAddress;
+    if (!evmNetworkProvider)
+      throw Error("EVM compatible Network Provider not provided in parameter");
+    this.web3 = new Web3(evmNetworkProvider);
+    return this.evmWalletAddress;
   }
 
   /**
-   * Gets ethereum wallet balance
-   * @returns balance in ether
+   * Gets EVM compatible wallet balance
+   * @returns balance in EVM compatible currency
    */
-  async getEthWalletBalance(): Promise<string> {
+  async getEvmWalletBalance(): Promise<string> {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
-    const balance = await this.web3.eth.getBalance(this.ethWalletAddress);
+    const balance = await this.web3.eth.getBalance(this.evmWalletAddress);
     return this.web3.utils.fromWei(balance, "ether");
   }
 
@@ -236,7 +236,7 @@ export class Common {
    * @param object A transaction object - see web3.eth.sendTransaction for detail
    * @returns The used gas for the simulated call/transaction.
    */
-  async estimateGasEth(object: unknown): Promise<number> {
+  async estimateGasEvm(object: unknown): Promise<number> {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
@@ -251,12 +251,12 @@ export class Common {
 
   /**
    * Estimates the gas fees required for this particular tx
-   * @param toAddress The address whom to send the Ether
-   * @param amount The amount of ethers  to send
+   * @param toAddress The address whom to send the currency
+   * @param amount The amount of currency to send
    * @param privateKey The privateKey for the sender wallet
    * @returns The receipt for the transaction
    */
-  async transferEth(
+  async transferEvm(
     toAddress: string,
     amount: number,
     privateKey: string
@@ -264,7 +264,7 @@ export class Common {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
-    if (!this.ethWalletAddress) {
+    if (!this.evmWalletAddress) {
       throw Error("Ethereum Wallet Address is not set");
     }
     const amountToSend = this.web3.utils.toWei(amount.toString(), "ether"); // Convert to wei value
@@ -286,25 +286,25 @@ export class Common {
     return receipt;
   }
   /**
-   * signs payload from ethereum wallet
+   * signs payload from EVM compatible wallet
    * @param data The actual payload to be signed
-   * @param ethPrivateKey Ethereum Private Key as a string
+   * @param evmPrivateKey EVM compatible Private Key as a string
    * @returns balance in ether
    */
-  signPayloadEth(data: unknown, ethPrivateKey: string): unknown {
+  signPayloadEvm(data: unknown, evmPrivateKey: string): unknown {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
-    if (!ethPrivateKey) {
+    if (!evmPrivateKey) {
       throw Error("Ethereum private key not provided");
     }
-    return this.web3.eth.accounts.sign(data, ethPrivateKey);
+    return this.web3.eth.accounts.sign(data, evmPrivateKey);
   }
   /**
    * creates ethereum wallet
    * @returns ethereum wallet
    */
-  createEthWallet(): unknown {
+  createEvmWallet(): unknown {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
@@ -316,7 +316,7 @@ export class Common {
    * @param ethPrivateKey Ethereum Private Key as a string
    * @returns ethereum wallet
    */
-  getEthWalletByPrivateKey(ethPrivateKey: string): unknown {
+  getEvmWalletByPrivateKey(ethPrivateKey: string): unknown {
     if (!this.web3) {
       throw Error("Ethereum Wallet and Network not initialized");
     }
