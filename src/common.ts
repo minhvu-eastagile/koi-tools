@@ -349,7 +349,8 @@ export class Common {
     if (!walletAddress) walletAddress = this.ethWalletAddress || "";
     try {
       let resp: any = await axios.get(
-        `https://api${network == "RINKEBY" ? "-rinkeby" : ""
+        `https://api${
+          network == "RINKEBY" ? "-rinkeby" : ""
         }.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${etherscanAPIKey}`
       );
       return (resp.data && resp.data.result) || [];
@@ -446,7 +447,12 @@ export class Common {
    * @param reward Custom reward for smartweave transaction
    * @returns Transaction ID
    */
-  async transfer(qty: number, target: string, token: string, reward?: string): Promise<string> {
+  async transfer(
+    qty: number,
+    target: string,
+    token: string,
+    reward?: string
+  ): Promise<string> {
     const input = {
       function: "transfer",
       qty: qty,
@@ -496,7 +502,12 @@ export class Common {
    * @param reward Custom reward for smartweave transaction
    * @returns Arweave transaction ID
    */
-  transferNft(nftId: string, qty: number, target: string, reward?: string): Promise<string> {
+  transferNft(
+    nftId: string,
+    qty: number,
+    target: string,
+    reward?: string
+  ): Promise<string> {
     this.assertArId(nftId);
     if (!Number.isInteger(qty) || qty < 1)
       throw new Error("qty must be a positive integer");
@@ -603,6 +614,27 @@ export class Common {
    */
   async migrateAttention(reward?: string): Promise<string> {
     return this.migrate(await this.getAttentionId(), reward);
+  }
+
+  /**
+   * Call lockBounty function in Koii contract
+   * @param contractId  Task contract ID registered in koii contract
+   * @param bounty Bounty to be locked by task creator
+   * @param reward Custom reward for smartweave transaction
+   * @returns Transaction ID
+   */
+  lockBounty(
+    contractId: string,
+    bounty: number,
+    reward?: string
+  ): Promise<string> {
+    this.assertArId(contractId);
+    const input = {
+      function: "lockBounty",
+      contractId,
+      bounty
+    };
+    return this.interactWrite(input, this.contractId, reward);
   }
 
   /**
