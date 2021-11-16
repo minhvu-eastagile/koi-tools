@@ -30,9 +30,6 @@ export interface RegistrationData {
 }
 
 const BUNDLER_NODES = "/nodes";
-const HOST_GATEWAY = "arweave.net";
-const URL_ARWEAVE_INFO = `https://${HOST_GATEWAY}/info`;
-const URL_ARWEAVE_GQL = `https://${HOST_GATEWAY}/graphql`;
 const BLOCK_TEMPLATE = `
   pageInfo {
     hasNextPage
@@ -51,13 +48,6 @@ const BLOCK_TEMPLATE = `
     }
   }`;
 
-export const arweave = Arweave.init({
-  host: HOST_GATEWAY,
-  protocol: "https",
-  port: 443,
-  timeout: 10000, // Set timeout to 10000 to prevent denial of service attacks, causes Out of Memory error if too high
-  logging: false
-});
 
 /**
  * Tools for interacting with the koi network
@@ -70,13 +60,24 @@ export class Common {
   bundlerUrl: string;
   web3?: any;
   evmWalletAddress?: string;
+  arweave: Arweave;
+  arweaveRateLimit: number;
 
   constructor(
     bundlerUrl = "https://mainnet.koii.live",
-    contractId = "QA7AIFVx1KBBmzC7WUNhJbDsHlSJArUT0jWrhZMZPS8"
+    contractId = "QA7AIFVx1KBBmzC7WUNhJbDsHlSJArUT0jWrhZMZPS8",
+    arweave?: Arweave,
+    arweaveRateLimit = 60000
   ) {
     this.bundlerUrl = bundlerUrl;
     this.contractId = contractId;
+    this.arweave = arweave || Arweave.init({
+      host: "this.arweave.net",
+      protocol: "https",
+      port: 443,
+      logging: false
+    });
+    this.arweaveRateLimit = arweaveRateLimit
     console.log(
       "Initialized Koii Tools for true ownership and direct communication using version",
       this.contractId
@@ -145,7 +146,7 @@ export class Common {
    * @returns state of the contract read
    */
   swReadContract(contractId: string): Promise<unknown> {
-    return smartweave.readContract(arweave, contractId);
+    return smartweave.readContract(this.arweave, contractId);
   }
 
   /**
@@ -165,7 +166,7 @@ export class Common {
     if (use_mnemonic === true) {
       mnemonic = await this._generateMnemonic();
       key = await this._getKeyFromMnemonic(mnemonic);
-    } else key = await arweave.wallets.generate();
+    } else key = await this.arweave.wallets.generate();
 
     if (!key) throw Error("failed to create wallet");
 
@@ -377,7 +378,7 @@ export class Common {
    * @returns Wallet address
    */
   async getWalletAddress(): Promise<string> {
-    this.address = await arweave.wallets.jwkToAddress(this.wallet);
+    this.address = await this.arweave.wallets.jwkToAddress(this.wallet);
     return this.address;
   }
 
@@ -387,8 +388,8 @@ export class Common {
    */
   async getWalletBalance(): Promise<number> {
     if (!this.address) return 0;
-    const winston = await arweave.wallets.getBalance(this.address);
-    const ar = arweave.ar.winstonToAr(winston);
+    const winston = await this.arweave.wallets.getBalance(this.address);
+    const ar = this.arweave.ar.winstonToAr(winston);
     return parseFloat(ar);
   }
 
@@ -409,7 +410,7 @@ export class Common {
    * @returns State object
    */
   async getTransaction(id: string): Promise<Transaction> {
-    return arweave.transactions.get(id);
+    return this.arweave.transactions.get(id);
   }
 
   /**
@@ -417,8 +418,8 @@ export class Common {
    * @returns Block height maybe number
    */
   async getBlockHeight(): Promise<unknown> {
-    const info = await getArweaveNetInfo();
-    return info.data.height;
+    const info = await this.arweave.network.getInfo() as any;
+    return info.height;
   }
 
   /**
@@ -473,12 +474,12 @@ export class Common {
     };
     switch (token) {
       case "AR": {
-        const transaction = await arweave.createTransaction(
-          { target: target, quantity: arweave.ar.arToWinston(qty.toString()) },
+        const transaction = await this.arweave.createTransaction(
+          { target: target, quantity: this.arweave.ar.arToWinston(qty.toString()) },
           this.wallet
         );
-        await arweave.transactions.sign(transaction, this.wallet);
-        await arweave.transactions.post(transaction);
+        await this.arweave.transactions.sign(transaction, this.wallet);
+        await this.arweave.transactions.post(transaction);
         return transaction.id;
       }
       case "KOI": {
@@ -659,7 +660,7 @@ export class Common {
     try {
       //const wallet = this.wallet;
       // Now we sign the transaction
-      await arweave.transactions.sign(tx, this.wallet);
+      await this.arweave.transactions.sign(tx, this.wallet);
       // After is signed, we send the transaction
       //await exports.arweave.transactions.post(transaction);
       return tx;
@@ -674,7 +675,7 @@ export class Common {
    * @returns Transaction
    */
   nftTransactionData(txId: string): Promise<Transaction> {
-    return arweave.transactions.get(txId);
+    return this.arweave.transactions.get(txId);
   }
 
   /**
@@ -689,7 +690,7 @@ export class Common {
     const publicModulus = jwk.n;
     const dataInString = JSON.stringify(data);
     const dataIn8Array = arweaveUtils.stringToBuffer(dataInString);
-    const rawSignature = await arweave.crypto.sign(jwk, dataIn8Array);
+    const rawSignature = await this.arweave.crypto.sign(jwk, dataIn8Array);
     payload.signature = arweaveUtils.bufferTob64Url(rawSignature);
     payload.owner = publicModulus;
     return payload;
@@ -705,7 +706,7 @@ export class Common {
     const rawSignature = arweaveUtils.b64UrlToBuffer(payload.signature);
     const dataInString = JSON.stringify(data);
     const dataIn8Array = arweaveUtils.stringToBuffer(dataInString);
-    return await arweave.crypto.verify(
+    return await this.arweave.crypto.verify(
       payload.owner,
       dataIn8Array,
       rawSignature
@@ -720,7 +721,7 @@ export class Common {
   async postData(data: unknown): Promise<string | null> {
     // TODO: define data interface
     const wallet = this.wallet;
-    const transaction = await arweave.createTransaction(
+    const transaction = await this.arweave.createTransaction(
       {
         data: Buffer.from(JSON.stringify(data, null, 2), "utf8")
       },
@@ -728,11 +729,11 @@ export class Common {
     );
 
     // Now we sign the transaction
-    await arweave.transactions.sign(transaction, wallet);
+    await this.arweave.transactions.sign(transaction, wallet);
     const txId = transaction.id;
 
     // After is signed, we send the transaction
-    const response = await arweave.transactions.post(transaction);
+    const response = await this.arweave.transactions.post(transaction);
 
     if (response.status === 200) return txId;
 
@@ -890,7 +891,9 @@ export class Common {
    * @returns Object containing the query results
    */
   async gql(request: string): Promise<any> {
-    const { data } = await axios.post(URL_ARWEAVE_GQL, request, {
+    const config = this.arweave.api.config;
+    const gqlUrl = `${config.protocol || "https"}://${config.host || "arweave.net"}/graphql`;
+    const { data } = await axios.post(gqlUrl, request, {
       headers: { "content-type": "application/json" }
     });
     return data;
@@ -979,7 +982,7 @@ export class Common {
       initialState.addresses.Arweave
     ) {
       try {
-        const tx = await arweave.createTransaction(
+        const tx = await this.arweave.createTransaction(
           {
             data: image.blobData
           },
@@ -996,8 +999,8 @@ export class Common {
         );
         tx.addTag("Wallet-Address", initialState.addresses.Arweave);
         tx.addTag("Init-State", JSON.stringify(initialState));
-        await arweave.transactions.sign(tx, this.wallet);
-        const uploader = await arweave.transactions.getUploader(tx);
+        await this.arweave.transactions.sign(tx, this.wallet);
+        const uploader = await this.arweave.transactions.getUploader(tx);
         while (!uploader.isComplete) {
           await uploader.uploadChunk();
           console.log(
@@ -1027,7 +1030,7 @@ export class Common {
   async updateKID(KIDObject: any, contractId: string): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    const txId = await interactWrite(arweave, wallet, contractId, {
+    const txId = await interactWrite(this.arweave, wallet, contractId, {
       function: "updateKID",
       ...KIDObject
     });
@@ -1046,7 +1049,7 @@ export class Common {
       return false;
     }
     try {
-      const tx = await arweave.createTransaction(
+      const tx = await this.arweave.createTransaction(
         {
           data: Buffer.from(collectionObject.owner, "utf8")
         },
@@ -1060,8 +1063,8 @@ export class Common {
       tx.addTag("Contract-Src", "NCepV_8bY831CMHK0LZQAQAVwZyNKLalmC36FlagLQE");
       tx.addTag("Wallet-Address", collectionObject.owner);
       tx.addTag("Init-State", JSON.stringify(initialState));
-      await arweave.transactions.sign(tx, this.wallet);
-      const uploader = await arweave.transactions.getUploader(tx);
+      await this.arweave.transactions.sign(tx, this.wallet);
+      const uploader = await this.arweave.transactions.getUploader(tx);
       while (!uploader.isComplete) {
         await uploader.uploadChunk();
         console.log(
@@ -1122,7 +1125,7 @@ export class Common {
   addToCollection(nftId: string, contractId: string): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    return interactWrite(arweave, wallet, contractId, {
+    return interactWrite(this.arweave, wallet, contractId, {
       function: "addToCollection",
       nftId
     });
@@ -1137,7 +1140,7 @@ export class Common {
   removeFromCollection(index: number, contractId: string): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    return interactWrite(arweave, wallet, contractId, {
+    return interactWrite(this.arweave, wallet, contractId, {
       function: "removeFromCollection",
       index
     });
@@ -1152,7 +1155,7 @@ export class Common {
   updateView(newView: string, contractId: string): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    return interactWrite(arweave, wallet, contractId, {
+    return interactWrite(this.arweave, wallet, contractId, {
       function: "updateView",
       newView
     });
@@ -1170,7 +1173,7 @@ export class Common {
   ): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    return interactWrite(arweave, wallet, contractId, {
+    return interactWrite(this.arweave, wallet, contractId, {
       function: "updatePreviewImageIndex",
       imageIndex
     });
@@ -1185,7 +1188,7 @@ export class Common {
   updateCollection(collection: unknown, contractId: string): Promise<unknown> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
 
-    return interactWrite(arweave, wallet, contractId, {
+    return interactWrite(this.arweave, wallet, contractId, {
       function: "updateCollection",
       collection
     });
@@ -1205,7 +1208,7 @@ export class Common {
   ): Promise<string> {
     const wallet = this.wallet === undefined ? "use_wallet" : this.wallet;
     return interactWrite(
-      arweave,
+      this.arweave,
       wallet,
       contractId,
       input,
@@ -1249,15 +1252,4 @@ export class Common {
   }
 }
 
-/**
- * Get info from Arweave net
- * @returns Axios response with info
- */
-function getArweaveNetInfo(): Promise<AxiosResponse<any>> {
-  return axios.get(URL_ARWEAVE_INFO);
-}
-
-module.exports = {
-  arweave,
-  Common
-};
+module.exports = { Common };

@@ -13,12 +13,10 @@ test("Get wallet balance", async () => {
 });
 
 test("Get block height", async () => {
-  jest.setTimeout(15000);
   expect(await ktools.getBlockHeight()).toBeGreaterThan(0);
 });
 
 test("Mint", async () => {
-  jest.setTimeout(60000);
   const submission = {
     targetAddress: "D3lK6_xXvBUXMUyA2RJz3soqmLlztkv-gVpEP5AlVUo",
     qty: 5
@@ -55,7 +53,6 @@ test("Verify signature", async () => {
 });
 
 test("Arweave GQL", async () => {
-  jest.setTimeout(15000);
   const query = "query { transactions(block: {min: 0, max: 10}) { edges { node { id } } } }";
   const request = JSON.stringify({query});
   const res = await ktools.gql(request);
@@ -63,19 +60,17 @@ test("Arweave GQL", async () => {
 });
 
 // test("Get owned transactions", async () => {
-//   jest.setTimeout(15000);
 //   const transactions = await ktools.getOwnedTxs("ou-OUmrWuT0hnSiUMoyhGEbd3s5b_ce8QK0vhNwmno4", 2);
 //   expect(transactions.data.transactions.edges.length).toBe(2);
 // });
 
 test("Get recipient transactions", async () => {
-  jest.setTimeout(15000);
   const transactions = await ktools.getRecipientTxs("ou-OUmrWuT0hnSiUMoyhGEbd3s5b_ce8QK0vhNwmno4", 3);
   expect(transactions.data.transactions.edges.length).toBe(3);
 });
 
 test("Sign transaction", async () => {
-  const transaction = await kcommon.arweave.createTransaction(
+  const transaction = await ktools.arweave.createTransaction(
     {
       data: Buffer.from('Some data', 'utf8')
     }
@@ -97,7 +92,6 @@ test("Get owner nfts", async () => {
 });
 
 test("Get NFT reward", async () => {
-  jest.setTimeout(60000);
   const reward = await ktools.getNftReward("1UDe0Wqh51-O03efPzoc_HhsUPrmgBR2ziUfaI7CpZk");
   //expect(reward).toBeGreaterThanOrEqual(0);
   expect(reward).toBeGreaterThan(1600);
@@ -109,19 +103,17 @@ test("Get Views And Earned KOII", async () => {
     "9FD54GbueDjQ1_wXgBEkLVtmaMQxdM23CIysMaAh8ng"
   ]
   const view = await ktools.getViewsAndEarnedKOII(NFT_ID_ARR);
-  
+
   //expect(view.totalViews).toBeGreaterThanOrEqual(0);
   expect(view.totalViews).toBeGreaterThan(11000);
 });
 
 test("Get attentionId", async () => {
-  jest.setTimeout(60000);
   const attentionId = await ktools.getAttentionId();
   expect(typeof attentionId).toEqual("string");
   expect(attentionId.length).toEqual(43);
 });
 
 // test("generate mnemonic", async () => {
-//   jest.setTimeout(600000);
 //   expect(await ktools.generateWallet(true)).toBeTruthy();
 // });

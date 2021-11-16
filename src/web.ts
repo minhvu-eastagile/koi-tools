@@ -1,4 +1,4 @@
-import { Common, arweave } from "./common";
+import { Common } from "./common";
 
 export class Web extends Common {
   /**
@@ -20,8 +20,8 @@ export class Web extends Common {
    */
   async getAr(address: string): Promise<Number> {
     this.assertArId(address);
-    const winston = await arweave.wallets.getBalance(address);
-    const ar = arweave.ar.winstonToAr(winston);
+    const winston = await this.arweave.wallets.getBalance(address);
+    const ar = this.arweave.ar.winstonToAr(winston);
     return parseFloat(ar);
   }
 
