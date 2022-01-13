@@ -143,6 +143,21 @@ export class Node extends Common {
   }
 
   /**
+   * Del Redis Keys
+   * @param key key to delete
+   * @returns
+   */
+   redisDelAsync(key: string): Promise<Number|null> {
+    return new Promise((resolve, reject) => {
+      if (this.redisClient === undefined) reject("Redis not connected");
+      else
+        this.redisClient.del(key, (err,res) => {
+          err ? reject(err) : resolve(res);
+        });
+    });
+  }
+
+  /**
    * Get data from Redis async
    * @param key Redis key of data
    * @returns Data as a string, null if no such key exists
