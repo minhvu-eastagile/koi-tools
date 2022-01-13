@@ -127,6 +127,20 @@ export class Node extends Common {
         });
     });
   }
+  /**
+   * Get Redis Keys
+   * @param pattern Redis key of data
+   * @returns
+   */
+   redisKeysAsync(pattern: string): Promise<Array<string>| null> {
+    return new Promise((resolve, reject) => {
+      if (this.redisClient === undefined) reject("Redis not connected");
+      else
+        this.redisClient.keys(pattern, (err,res) => {
+          err ? reject(err) : resolve(res);
+        });
+    });
+  }
 
   /**
    * Get data from Redis async
