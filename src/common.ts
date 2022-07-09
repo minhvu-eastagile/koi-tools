@@ -4,12 +4,14 @@ import smartweave from "smartweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import * as arweaveUtils from "arweave/node/lib/utils";
 import Transaction from "arweave/node/lib/transaction";
-import Web3 from "web3";
+
 import { interactWrite } from "smartweave/lib/contract-interact";
 //@ts-ignore // Needed to allow implicit unknown here
 import { generateKeyPair, getKeyPairFromMnemonic } from "human-crypto-keys";
 //@ts-ignore
 import { pem2jwk } from "pem-jwk";
+
+import { ethers } from "ethers";
 
 export interface BundlerPayload {
   data?: unknown;
@@ -208,27 +210,25 @@ export class Common {
    * @param evmNetworkProvider EVM compatible Network Provider URL (For example https://mainnet.infura.io/v3/xxxxxxxxxxxxxxxxx in case of ethereum mainnet)
    * @returns Wallet address
    */
-  initializeEvmWalletAndProvider(
+  initializeEthWalletAndProvider(
     walletAddress: string,
     evmNetworkProvider: string
   ): string {
     if (!this.evmWalletAddress) this.evmWalletAddress = walletAddress;
     if (!evmNetworkProvider)
       throw Error("EVM compatible Network Provider not provided in parameter");
-    this.web3 = new Web3(evmNetworkProvider);
-    return this.evmWalletAddress;
-  }
 
-  /**
-   * Gets EVM compatible wallet balance
-   * @returns balance in EVM compatible currency
-   */
-  async getEvmWalletBalance(): Promise<string> {
-    if (!this.web3) {
-      throw Error("EVM compatible Wallet and Network not initialized");
-    }
-    const balance = await this.web3.eth.getBalance(this.evmWalletAddress);
-    return this.web3.utils.fromWei(balance, "ether");
+    const split = evmNetworkProvider.split("/");
+    const apiKey = split[4];
+    const networkName = split[2].split(".")[0];
+
+    const network = ethers.providers.getNetwork(networkName);
+
+    const provider = new ethers.providers.InfuraProvider(network, apiKey);
+
+    this.web3 = provider;
+
+    return this.evmWalletAddress;
   }
 
   /**
@@ -236,17 +236,19 @@ export class Common {
    * @param object A transaction object - see web3.eth.sendTransaction for detail
    * @returns The used gas for the simulated call/transaction.
    */
-  async estimateGasEvm(object: unknown): Promise<number> {
+  async estimateGasEth(object: unknown): Promise<number> {
     if (!this.web3) {
       throw Error("EVM compatible Wallet and Network not initialized");
     }
     if (!object) {
       throw Error("EVM compatible private key not provided");
     }
-    const gasPrice = await this.web3.eth.getGasPrice();
-    const estimateGas = await this.web3.eth.estimateGas(object);
+
+    const gasPrice = await this.web3.getGasPrice();
+    const estimateGas = await this.web3.estimateGas(object);
+
     const totalGasInWei = gasPrice * estimateGas;
-    return this.web3.utils.fromWei(totalGasInWei.toString(), "ether");
+    return totalGasInWei;
   }
 
   /**
@@ -256,7 +258,7 @@ export class Common {
    * @param privateKey The privateKey for the sender wallet
    * @returns The receipt for the transaction
    */
-  async transferEvm(
+  async transferEth(
     toAddress: string,
     amount: number,
     privateKey: string
@@ -267,111 +269,20 @@ export class Common {
     if (!this.evmWalletAddress) {
       throw Error("EVM compatible Wallet Address is not set");
     }
-    const amountToSend = this.web3.utils.toWei(amount.toString(), "ether"); // Convert to wei value
+
+    const amountToSend = amount * 1000000000000000000;
 
     const rawTx = {
       to: toAddress,
-      value: amountToSend,
-      gas: 0
+      value: amountToSend
     };
-    const estimateGas = await this.web3.eth.estimateGas(rawTx);
-    rawTx.gas = estimateGas;
-    const signTx = await this.web3.eth.accounts.signTransaction(
-      rawTx,
-      privateKey
-    );
-    const receipt = await this.web3.eth.sendSignedTransaction(
-      signTx.rawTransaction
-    );
+
+    const signer = new ethers.Wallet(privateKey, this.web3);
+
+    const receipt = await signer.sendTransaction(rawTx);
     return receipt;
   }
-  /**
-   * signs payload from EVM compatible wallet
-   * @param data The actual payload to be signed
-   * @param evmPrivateKey EVM compatible Private Key as a string
-   * @returns balance in ether
-   */
-  signPayloadEvm(data: unknown, evmPrivateKey: string): unknown {
-    if (!this.web3) {
-      throw Error("EVM compatible Wallet and Network not initialized");
-    }
-    if (!evmPrivateKey) {
-      throw Error("EVM compatible private key not provided");
-    }
-    return this.web3.eth.accounts.sign(data, evmPrivateKey);
-  }
-  /**
-   * creates EVM compatible wallet
-   * @returns EVM compatible wallet
-   */
-  createEvmWallet(): unknown {
-    if (!this.web3) {
-      throw Error("EVM compatible Wallet and Network not initialized");
-    }
-    const wallet = this.web3.eth.accounts.create(this.web3.utils.randomHex(32));
-    return wallet;
-  }
-  /**
-   * creates EVM compatible wallet
-   * @param evmPrivateKey EVM compatible Private Key as a string
-   * @returns EVM compatible wallet
-   */
-  getEvmWalletByPrivateKey(evmPrivateKey: string): unknown {
-    if (!this.web3) {
-      throw Error("EVM compatible Wallet and Network not initialized");
-    }
-    if (!evmPrivateKey) {
-      throw Error("EVM compatible private key not provided");
-    }
-    const wallet = this.web3.eth.accounts.privateKeyToAccount(evmPrivateKey);
-    return wallet;
-  }
-  /**
-   * Gets all transactions for a particular EVM compatible wallet
-   * @param APIKey APIKey to fetch the txs
-   * @param network Specifies the network of txs to be fetched - Defaults to RINKEBY (RINKEBY, MAINNET, POLYGON or MUMBAI)
-   * @param offset Number of transactions to return - Defaults to 50
-   * @param walletAddress optional param, to fetch txs of other wallet address than the loaded one
-   * @returns EVM compatible wallet
-   */
-  async getAllEvmTransactions(
-    APIKey: string,
-    network = "RINKEBY",
-    offset = 50,
-    walletAddress: string
-  ): Promise<unknown> {
-    if (!this.web3) {
-      throw Error("EVM compatible Wallet and Network not initialized");
-    }
-    if (!APIKey) {
-      throw Error("APIKey not provided");
-    }
-    if (!walletAddress) walletAddress = this.evmWalletAddress || "";
-    if (network == "POLYGON" || network == "MUMBAI") {
-      try {
-        const resp: any = await axios.get(
-          `https://api${
-            network == "MUMBAI" ? "-testnet" : ""
-          }.polygonscan.com/api?module=account&action=txlist&address=${walletAddress}&startblock=1&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${APIKey}`
-        );
-        return (resp.data && resp.data.result) || [];
-      } catch (e) {
-        console.error(e);
-        return [];
-      }
-    } else {
-      try {
-        const resp: any = await axios.get(
-          `https://api${network == "RINKEBY" ? "-rinkeby" : ""
-          }.etherscan.io/api?module=account&action=txlist&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=${offset}&sort=asc&apikey=${APIKey}`
-        );
-        return (resp.data && resp.data.result) || [];
-      } catch (e) {
-        console.error(e);
-        return [];
-      }
-    }
-  }
+
   /**
    * Uses koi wallet to get the address
    * @returns Wallet address
