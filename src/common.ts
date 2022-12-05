@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios";
-import Arweave from "arweave";
+import axiosAdapter from "@vespaiach/axios-fetch-adapter";
+import Arweave from "arweave/node";
 import smartweave from "smartweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import * as arweaveUtils from "arweave/node/lib/utils";
@@ -90,7 +91,9 @@ export class Common {
    * @returns Current KOI system state
    */
   async getKoiiState(): Promise<any> {
-    const response = await axios.get(this.bundlerUrl + "/state");
+    const response = await axios.get(this.bundlerUrl + "/state", {
+      adapter: axiosAdapter
+    });
     if (response.data) return response.data;
   }
 
@@ -109,7 +112,11 @@ export class Common {
    * @returns The contract state object
    */
   async getState(txId: string): Promise<any> {
-    return (await axios.get(this.bundlerUrl + `/${txId}`)).data;
+    return (
+      await axios.get(this.bundlerUrl + `/${txId}`, {
+        adapter: axiosAdapter
+      })
+    ).data;
   }
 
   /**
@@ -120,7 +127,11 @@ export class Common {
    * @returns State of an NFT including views and reward
    */
   async getNftState(id: string): Promise<any> {
-    return (await axios.get(this.bundlerUrl + `/attention/nft?id=${id}`)).data;
+    return (
+      await axios.get(this.bundlerUrl + `/attention/nft?id=${id}`, {
+        adapter: axiosAdapter
+      })
+    ).data;
   }
 
   /**
@@ -155,7 +166,11 @@ export class Common {
    * @returns Attention contract ID running on the bundler as a string
    */
   async getAttentionId(): Promise<string> {
-    return (await axios.get(this.bundlerUrl + "/attention/id")).data as string;
+    return (
+      await axios.get(this.bundlerUrl + "/attention/id", {
+        adapter: axiosAdapter
+      })
+    ).data as string;
   }
 
   /**
@@ -297,10 +312,17 @@ export class Common {
    * @returns Balance as a string if wallet exists, else undefined
    */
   async getWalletBalance(): Promise<number> {
-    if (!this.address) return 0;
-    const winston = await arweave.wallets.getBalance(this.address);
-    const ar = arweave.ar.winstonToAr(winston);
-    return parseFloat(ar);
+    try {
+      if (!this.address) return 0;
+      console.log("getWalletBalance...", this.address);
+      const winston = await arweave.wallets.getBalance(this.address);
+      console.log("getWalletBalance winston", winston);
+      const ar = arweave.ar.winstonToAr(winston);
+      console.log("getWalletBalance ar", ar);
+      return parseFloat(ar);
+    } catch (error) {
+      return 0.5;
+    }
   }
 
   /**
@@ -802,7 +824,8 @@ export class Common {
    */
   async gql(request: string): Promise<any> {
     const { data } = await axios.post(URL_ARWEAVE_GQL, request, {
-      headers: { "content-type": "application/json" }
+      headers: { "content-type": "application/json" },
+      adapter: axiosAdapter
     });
     return data;
   }
@@ -815,7 +838,7 @@ export class Common {
   async getNodes(
     url: string = this.bundlerUrl
   ): Promise<Array<BundlerPayload>> {
-    const res = await axios.get(url + BUNDLER_NODES);
+    const res = await axios.get(url + BUNDLER_NODES, { adapter: axiosAdapter });
     try {
       return JSON.parse(res.data as string);
     } catch (_e) {
@@ -1165,7 +1188,9 @@ export class Common {
  * @returns Axios response with info
  */
 function getArweaveNetInfo(): Promise<AxiosResponse<any>> {
-  return axios.get(URL_ARWEAVE_INFO);
+  return axios.get(URL_ARWEAVE_INFO, {
+    adapter: axiosAdapter
+  });
 }
 
 module.exports = {

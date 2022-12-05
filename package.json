@@ -24,7 +24,8 @@
   "homepage": "https://github.com/koii-network/tools",
   "dependencies": {
     "@_koi/kohaku": "^1.1.1",
-    "arweave": "^1.10.18",
+    "@vespaiach/axios-fetch-adapter": "^0.3.1",
+    "arweave": "https://github.com/longphamea/arweave-js",
     "axios": "^0.23.0",
     "dotenv": "^10.0.0",
     "ethers": "^5.6.9",
